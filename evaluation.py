@@ -35,19 +35,44 @@ evaluation_cases = [
     },
 ]
 
-correct = 0
+correct_at_1 = 0
+recall_hits = 0
+reciprocal_rank_sum = 0
+
 for case in evaluation_cases:
-    results = retrieve_functions(case["query"], top_k=1)
+    results = retrieve_functions(
+        case["query"],
+        top_k=3
+    )
 
-    function_name = results[0]["name"] if results else None
+    retrieved_names = [
+        result["name"]
+        for result in results
+    ]
 
-    is_correct = function_name == case["expected"]
+    expected = case["expected"]
 
-    if is_correct:
-        correct += 1
+    if retrieved_names and retrieved_names[0] == expected:
+        correct_at_1 += 1
 
-    print(f"{'PASS' if is_correct else 'FAIL'} | expected: {case["expected"]} | predicted: {function_name}")
+    if expected in retrieved_names:
+        recall_hits += 1
 
-accuracy = correct / len(evaluation_cases)
+        rank = retrieved_names.index(expected) + 1
+        reciprocal_rank_sum += 1 / rank
+    else:
+        rank = None
 
-print(f"Top-1 accuracy: {accuracy:.2%}")
+    print(
+        f"expected={expected:<20} "
+        f"rank={rank} "
+        f"retrieved={retrieved_names}"
+    )
+
+recall_at_1 = correct_at_1 / len(evaluation_cases)
+recall_at_3 = recall_hits / len(evaluation_cases)
+mrr = reciprocal_rank_sum / len(evaluation_cases)
+
+print(f"\nRecall@1: {recall_at_1:.2%}")
+print(f"Recall@3: {recall_at_3:.2%}")
+print(f"MRR: {mrr:.4f}")
