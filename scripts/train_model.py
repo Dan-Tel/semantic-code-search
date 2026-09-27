@@ -1,15 +1,16 @@
 from pathlib import Path
 
 import torch
-import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
 from semantic_code_search.data import load_pairs
 from semantic_code_search.model import SmallCodeEncoder
-
 from semantic_code_search.tokenization import (
     load_tokenizer,
     tokenize_batch,
+)
+from semantic_code_search.training import (
+    train_one_epoch,
 )
 
 
@@ -39,71 +40,6 @@ def get_device():
         return torch.device("mps")
 
     return torch.device("cpu")
-
-
-def train_one_epoch(
-    model,
-    train_loader,
-    tokenizer,
-    optimizer,
-    device
-):
-    model.train()
-
-    total_loss = 0.0
-    total_examples = 0
-
-    for batch in train_loader:
-        query_inputs = tokenize_batch(
-            tokenizer,
-            batch["query"],
-            QUERY_LENGTH,
-            device
-        )
-
-        code_inputs = tokenize_batch(
-            tokenizer,
-            batch["code"],
-            CODE_LENGTH,
-            device
-        )
-
-        query_vectors = model(
-            query_inputs["input_ids"],
-            query_inputs["attention_mask"]
-        )
-
-        code_vectors = model(
-            code_inputs["input_ids"],
-            code_inputs["attention_mask"]
-        )
-
-        similarity_matrix = (
-            query_vectors @ code_vectors.T
-        )
-
-        logits = similarity_matrix / TEMPERATURE
-
-        batch_size = logits.size(0)
-
-        labels = torch.arange(
-            batch_size,
-            device=device
-        )
-
-        loss = F.cross_entropy(
-            logits,
-            labels
-        )
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        total_loss += loss.item() * batch_size
-        total_examples += batch_size
-
-    return total_loss / total_examples
 
 
 def evaluate(
@@ -282,11 +218,14 @@ def main():
 
     for epoch in range(NUM_EPOCHS):
         train_loss = train_one_epoch(
-            model,
-            train_loader,
-            tokenizer,
-            optimizer,
-            device
+            model=model,
+            data_loader=train_loader,
+            tokenizer=tokenizer,
+            optimizer=optimizer,
+            device=device,
+            query_length=QUERY_LENGTH,
+            code_length=CODE_LENGTH,
+            temperature=TEMPERATURE,
         )
 
         metrics = evaluate(
