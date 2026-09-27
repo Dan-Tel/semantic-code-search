@@ -1,0 +1,10 @@
+# PyTorch устанавливается отдельно под CPU, CUDA или Apple MPS.
+
+datasets
+fsspec[http]==2026.6.0
+numpy
+scikit-learn
+tokenizers
+transformers
+tree-sitter
+tree-sitter-typescript
