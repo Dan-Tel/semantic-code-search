@@ -5,6 +5,9 @@ from transformers import PreTrainedTokenizerFast
 
 from semantic_code_search.data import load_pairs
 from semantic_code_search.model import SmallCodeEncoder
+from semantic_code_search.tokenization import (
+    load_tokenizer,
+)
 
 
 torch.manual_seed(42)
@@ -35,12 +38,8 @@ for index, pair in enumerate(pairs):
         f"↔ {pair['name']}"
     )
 
-tokenizer = PreTrainedTokenizerFast(
-    tokenizer_file="artifacts/tokenizer.json",
-    pad_token="[PAD]",
-    unk_token="[UNK]",
-    cls_token="[CLS]",
-    sep_token="[SEP]",
+tokenizer = load_tokenizer(
+    "artifacts/tokenizer.json"
 )
 
 query_batch = tokenizer(

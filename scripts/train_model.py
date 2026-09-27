@@ -3,10 +3,14 @@ from pathlib import Path
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
-from transformers import PreTrainedTokenizerFast
 
 from semantic_code_search.data import load_pairs
 from semantic_code_search.model import SmallCodeEncoder
+
+from semantic_code_search.tokenization import (
+    load_tokenizer,
+    tokenize_batch,
+)
 
 
 # Configuration
@@ -35,26 +39,6 @@ def get_device():
         return torch.device("mps")
 
     return torch.device("cpu")
-
-
-def tokenize_batch(
-    tokenizer,
-    texts,
-    max_length,
-    device
-):
-    inputs = tokenizer(
-        list(texts),
-        padding=True,
-        truncation=True,
-        max_length=max_length,
-        return_tensors="pt"
-    )
-
-    return {
-        key: tensor.to(device)
-        for key, tensor in inputs.items()
-    }
 
 
 def train_one_epoch(
@@ -273,12 +257,8 @@ def main():
     print("Training batches:", len(train_loader))
     print("Validation batches:", len(validation_loader))
 
-    tokenizer = PreTrainedTokenizerFast(
-        tokenizer_file=str(TOKENIZER_PATH),
-        pad_token="[PAD]",
-        unk_token="[UNK]",
-        cls_token="[CLS]",
-        sep_token="[SEP]",
+    tokenizer = load_tokenizer(
+        TOKENIZER_PATH
     )
 
     model = SmallCodeEncoder(

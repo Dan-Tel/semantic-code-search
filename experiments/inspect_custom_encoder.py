@@ -6,14 +6,13 @@ from torch import nn
 import torch.nn.functional as F
 
 from semantic_code_search.model import SmallCodeEncoder
+from semantic_code_search.tokenization import (
+    load_tokenizer,
+)
 
 
-tokenizer = PreTrainedTokenizerFast(
-    tokenizer_file="artifacts/tokenizer.json",
-    pad_token="[PAD]",
-    unk_token="[UNK]",
-    cls_token="[CLS]",
-    sep_token="[SEP]",
+tokenizer = load_tokenizer(
+    "artifacts/tokenizer.json"
 )
 
 queries = [
