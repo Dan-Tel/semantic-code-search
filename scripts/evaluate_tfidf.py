@@ -38,7 +38,7 @@ evaluation_cases = [
 ]
 
 search_engine = TfidfCodeSearch(
-    "sample_repository"
+    "tests/fixtures/sample_repository"
 )
 
 correct_at_1 = 0
