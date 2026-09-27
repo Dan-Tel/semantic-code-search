@@ -15,6 +15,7 @@ from semantic_code_search.training import (
 from semantic_code_search.evaluation import (
     evaluate_retrieval,
 )
+from semantic_code_search.device import get_device
 
 
 # Configuration
@@ -33,16 +34,6 @@ TOKENIZER_PATH = Path("artifacts/tokenizer.json")
 CHECKPOINT_PATH = Path(
     "checkpoints/small_code_encoder_q2c_best.pt"
 )
-
-
-def get_device():
-    if torch.cuda.is_available():
-        return torch.device("cuda")
-
-    if torch.backends.mps.is_available():
-        return torch.device("mps")
-
-    return torch.device("cpu")
 
 
 def main():
