@@ -154,8 +154,8 @@ code_vectors = model(
 query_input_ids = query_batch["input_ids"]
 query_attention_mask = query_batch["attention_mask"]
 
-code_input_ids = query_batch["input_ids"]
-code_attention_mask = query_batch["attention_mask"]
+code_input_ids = code_batch["input_ids"]
+code_attention_mask = code_batch["attention_mask"]
 
 labels = torch.arange(
     BATCH_SIZE,

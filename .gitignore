@@ -16,3 +16,16 @@ __pycache__/
 
 # IDE
 .idea/
+
+# Model checkpoints
+checkpoints/
+*.pt
+*.pth
+
+# Test and tool caches
+.pytest_cache/
+.coverage
+
+# Operating systems
+.DS_Store
+Thumbs.db
