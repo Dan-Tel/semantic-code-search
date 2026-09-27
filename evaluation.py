@@ -1,4 +1,4 @@
-from search import retrieve_functions
+from tfidf_search import retrieve_functions
 
 evaluation_cases = [
     {

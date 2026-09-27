@@ -2,6 +2,17 @@ import re
 
 from datasets import load_dataset
 
+import numpy as np
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+from tfidf_search import normalize_text
+
+import torch
+import torch.nn.functional as F
+
+
 def clean_documentation(text):
     # Удаляем маркеры регионов
     text = re.sub(
@@ -109,13 +120,6 @@ train_pairs = load_pairs(
 #     print("Query:", pair["query"])
 #     print("Code:", pair["code"][:200])
 
-import numpy as np
-
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-
-from search import normalize_text
-
 batch = train_pairs[:3]
 
 queries = [
@@ -185,9 +189,6 @@ correct_probabilities = probabilities[
 loss = -np.log(correct_probabilities).mean()
 # print("Loss:", round(loss, 4))
 
-
-import torch
-import torch.nn.functional as F
 
 logits_tensor = torch.tensor(
     similarity_matrix / temperature,
