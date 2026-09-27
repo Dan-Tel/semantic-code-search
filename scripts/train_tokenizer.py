@@ -5,7 +5,7 @@ from tokenizers.pre_tokenizers import ByteLevel
 from tokenizers.processors import TemplateProcessing
 from tokenizers.trainers import BpeTrainer
 
-from data_utils import load_pairs
+from semantic_code_search.data import load_pairs
 
 
 VOCAB_SIZE = 8000

@@ -3,8 +3,8 @@ import torch.nn.functional as F
 
 from transformers import PreTrainedTokenizerFast
 
-from data_utils import load_pairs
-from small_code_encoder import SmallCodeEncoder
+from semantic_code_search.data import load_pairs
+from semantic_code_search.model import SmallCodeEncoder
 
 
 torch.manual_seed(42)

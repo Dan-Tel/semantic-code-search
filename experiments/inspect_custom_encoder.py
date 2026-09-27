@@ -1,5 +1,12 @@
 from transformers import PreTrainedTokenizerFast
 
+import torch
+from torch import nn
+
+import torch.nn.functional as F
+
+from semantic_code_search.model import SmallCodeEncoder
+
 
 tokenizer = PreTrainedTokenizerFast(
     tokenizer_file="artifacts/tokenizer.json",
@@ -41,10 +48,6 @@ encoded = tokenizer(
 #     print(tokens)
 
 
-
-
-import torch
-from torch import nn
 
 
 torch.manual_seed(42)
@@ -146,7 +149,6 @@ contextual_vectors = transformer_encoder(
 
 
 
-import torch.nn.functional as F
 
 content_mask = encoded["attention_mask"].bool()
 
@@ -186,7 +188,6 @@ similarity_matrix = (
 print("\nSimilarity matrix:")
 print(similarity_matrix)
 
-from small_code_encoder import SmallCodeEncoder
 
 model = SmallCodeEncoder(
     vocab_size=len(tokenizer),
