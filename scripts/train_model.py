@@ -12,6 +12,9 @@ from semantic_code_search.tokenization import (
 from semantic_code_search.training import (
     train_one_epoch,
 )
+from semantic_code_search.evaluation import (
+    evaluate_retrieval,
+)
 
 
 # Configuration
@@ -40,124 +43,6 @@ def get_device():
         return torch.device("mps")
 
     return torch.device("cpu")
-
-
-def evaluate(
-    model,
-    validation_loader,
-    tokenizer,
-    device
-):
-    model.eval()
-
-    query_batches = []
-    code_batches = []
-
-    with torch.no_grad():
-        for batch in validation_loader:
-            query_inputs = tokenize_batch(
-                tokenizer,
-                batch["query"],
-                QUERY_LENGTH,
-                device
-            )
-
-            code_inputs = tokenize_batch(
-                tokenizer,
-                batch["code"],
-                CODE_LENGTH,
-                device
-            )
-
-            query_vectors = model(
-                query_inputs["input_ids"],
-                query_inputs["attention_mask"]
-            )
-
-            code_vectors = model(
-                code_inputs["input_ids"],
-                code_inputs["attention_mask"]
-            )
-
-            query_batches.append(
-                query_vectors.cpu()
-            )
-
-            code_batches.append(
-                code_vectors.cpu()
-            )
-
-    all_query_vectors = torch.cat(
-        query_batches,
-        dim=0
-    )
-
-    all_code_vectors = torch.cat(
-        code_batches,
-        dim=0
-    )
-
-    similarity_matrix = (
-        all_query_vectors @ all_code_vectors.T
-    )
-
-    number_of_queries = all_query_vectors.size(0)
-
-    expected_indices = torch.arange(
-        number_of_queries
-    )
-
-    # Top-1 accuracy
-    predicted_indices = similarity_matrix.argmax(
-        dim=1
-    )
-
-    correct = (
-        predicted_indices == expected_indices
-    ).sum().item()
-
-    top1_accuracy = correct / number_of_queries
-
-    # Recall@5
-    top5_indices = similarity_matrix.topk(
-        k=5,
-        dim=1
-    ).indices
-
-    hits_at_5 = (
-        top5_indices
-        == expected_indices.unsqueeze(1)
-    ).any(dim=1)
-
-    recall_at_5 = (
-        hits_at_5.float().mean().item()
-    )
-
-    # Mean Reciprocal Rank
-    sorted_indices = similarity_matrix.argsort(
-        dim=1,
-        descending=True
-    )
-
-    matches = (
-        sorted_indices
-        == expected_indices.unsqueeze(1)
-    )
-
-    ranks = (
-        matches.float().argmax(dim=1) + 1
-    )
-
-    mrr = (
-        1.0 / ranks.float()
-    ).mean().item()
-
-    return {
-        "correct": correct,
-        "top1_accuracy": top1_accuracy,
-        "recall_at_5": recall_at_5,
-        "mrr": mrr,
-    }
 
 
 def main():
@@ -228,11 +113,13 @@ def main():
             temperature=TEMPERATURE,
         )
 
-        metrics = evaluate(
-            model,
-            validation_loader,
-            tokenizer,
-            device
+        metrics = evaluate_retrieval(
+            model=model,
+            data_loader=validation_loader,
+            tokenizer=tokenizer,
+            device=device,
+            query_length=QUERY_LENGTH,
+            code_length=CODE_LENGTH,
         )
 
         print(
@@ -268,11 +155,13 @@ def main():
         checkpoint["model_state_dict"]
     )
 
-    final_metrics = evaluate(
-        model,
-        validation_loader,
-        tokenizer,
-        device
+    final_metrics = evaluate_retrieval(
+        model=model,
+        data_loader=validation_loader,
+        tokenizer=tokenizer,
+        device=device,
+        query_length=QUERY_LENGTH,
+        code_length=CODE_LENGTH,
     )
 
     print("\nBest checkpoint")
