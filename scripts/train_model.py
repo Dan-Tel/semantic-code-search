@@ -4,10 +4,14 @@ import torch
 from torch.utils.data import DataLoader
 
 from semantic_code_search.data import load_pairs
-from semantic_code_search.model import SmallCodeEncoder
+from semantic_code_search.model import create_model
 from semantic_code_search.tokenization import (
     load_tokenizer,
     tokenize_batch,
+)
+from semantic_code_search.checkpoint import (
+    load_checkpoint,
+    save_checkpoint,
 )
 from semantic_code_search.training import (
     train_one_epoch,
@@ -73,21 +77,13 @@ def main():
         TOKENIZER_PATH
     )
 
-    model = SmallCodeEncoder(
-        vocab_size=len(tokenizer),
-        pad_token_id=tokenizer.pad_token_id,
-        cls_token_id=tokenizer.cls_token_id,
-        sep_token_id=tokenizer.sep_token_id,
+    model = create_model(
+        tokenizer
     ).to(device)
 
     optimizer = torch.optim.AdamW(
         model.parameters(),
         lr=LEARNING_RATE
-    )
-
-    CHECKPOINT_PATH.parent.mkdir(
-        parents=True,
-        exist_ok=True
     )
 
     best_mrr = float("-inf")
@@ -124,26 +120,20 @@ def main():
         if metrics["mrr"] > best_mrr:
             best_mrr = metrics["mrr"]
 
-            torch.save(
-                {
-                    "epoch": epoch + 1,
-                    "model_state_dict": model.state_dict(),
-                    "optimizer_state_dict": optimizer.state_dict(),
-                    "metrics": metrics,
-                },
-                CHECKPOINT_PATH
+            save_checkpoint(
+                checkpoint_path=CHECKPOINT_PATH,
+                model=model,
+                optimizer=optimizer,
+                epoch=epoch + 1,
+                metrics=metrics,
             )
 
             print("New best model saved")
 
-    checkpoint = torch.load(
-        CHECKPOINT_PATH,
-        map_location=device,
-        weights_only=True
-    )
-
-    model.load_state_dict(
-        checkpoint["model_state_dict"]
+    checkpoint = load_checkpoint(
+        checkpoint_path=CHECKPOINT_PATH,
+        model=model,
+        device=device,
     )
 
     final_metrics = evaluate_retrieval(

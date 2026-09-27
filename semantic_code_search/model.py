@@ -112,3 +112,11 @@ class SmallCodeEncoder(nn.Module):
             p=2,
             dim=1,
         )
+
+def create_model(tokenizer):
+    return SmallCodeEncoder(
+        vocab_size=len(tokenizer),
+        pad_token_id=tokenizer.pad_token_id,
+        cls_token_id=tokenizer.cls_token_id,
+        sep_token_id=tokenizer.sep_token_id,
+    )
