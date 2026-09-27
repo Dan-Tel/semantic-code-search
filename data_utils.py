@@ -2,8 +2,18 @@ import re
 
 from datasets import load_dataset
 
+
+DATASET_NAME = "code-search-net/code_search_net"
+LANGUAGE = "javascript"
+
+SHUFFLE_SEED = 42
+SHUFFLE_BUFFER_SIZE = 1000
+MIN_QUERY_WORDS = 4
+
+
 def clean_documentation(text):
-    # Удаляем маркеры регионов
+    text = text or ""
+
     text = re.sub(
         r"#endregion\b",
         " ",
@@ -18,78 +28,76 @@ def clean_documentation(text):
         flags=re.IGNORECASE
     )
 
-    # Удаляем ссылки
     text = re.sub(
         r"https?://\S+",
         " ",
         text
     )
 
-    # Удаляем JSDoc-теги и всё после первого тега
     text = re.sub(
         r"(?:^|\s)@\w+\b.*$",
         " ",
         text
     )
 
-    # Нормализуем пробелы
-    text = re.sub(r"\s+", " ", text).strip()
+    text = re.sub(
+        r"\s+",
+        " ",
+        text
+    ).strip()
 
-    # Убираем оставшуюся пунктуацию в конце
-    text = text.rstrip(" :;,")
+    return text.rstrip(" :;,")
 
-    return text
 
-def is_good_example(example):
+def create_pair(example):
     query = clean_documentation(
         example["func_documentation_string"]
     )
 
-    code = example["func_code_string"].strip()
+    code = (
+        example["func_code_string"] or ""
+    ).strip()
 
-    # Слишком короткое описание обычно мало что сообщает
-    has_enough_words = len(query.split()) >= 4
+    if not code:
+        return None
 
-    return bool(code) and has_enough_words
+    if len(query.split()) < MIN_QUERY_WORDS:
+        return None
 
-dataset = load_dataset(
-    "code-search-net/code_search_net",
-    "javascript",
-    split="train",
-    streaming=True
-)
+    return {
+        "query": query,
+        "code": code,
+        "name": example["func_name"] or "",
+        "repository": example["repository_name"],
+    }
+
 
 def load_pairs(split, limit):
+    if limit <= 0:
+        return []
+
     dataset = load_dataset(
-        "code-search-net/code_search_net",
-        "javascript",
+        DATASET_NAME,
+        LANGUAGE,
         split=split,
         streaming=True
     )
 
-    # При streaming перемешивание происходит внутри буфера,
-    # а не сразу по всему датасету
     dataset = dataset.shuffle(
-        seed=42,
-        buffer_size=1000
+        seed=SHUFFLE_SEED,
+        buffer_size=SHUFFLE_BUFFER_SIZE
     )
 
     pairs = []
 
     for example in dataset:
-        if not is_good_example(example):
+        pair = create_pair(example)
+
+        if pair is None:
             continue
 
-        # TODO: добавь словарь с полями:
-        # query, code, name, repository
-        pairs.append({
-            "query": clean_documentation(example["func_documentation_string"]),
-            "code": example["func_code_string"].strip(),
-            "name": example["func_name"],
-            "repository": example["repository_name"]
-        })
+        pairs.append(pair)
 
-        # TODO: остановись, когда собрано limit примеров
         if len(pairs) >= limit:
             break
 
