@@ -7,7 +7,9 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from tfidf_search import normalize_text
+from semantic_code_search.baselines.tfidf import (
+    normalize_text,
+)
 
 import torch
 import torch.nn.functional as F

@@ -1,4 +1,6 @@
-from tfidf_search import retrieve_functions
+from semantic_code_search.baselines.tfidf import (
+    retrieve_functions,
+)
 
 evaluation_cases = [
     {
