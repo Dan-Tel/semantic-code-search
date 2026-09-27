@@ -3,7 +3,7 @@ import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from exctractor import find_source_files, load_source_files
+from source_files import find_source_files, load_source_files
 
 from typescript_parser import extract_repository_functions
 
