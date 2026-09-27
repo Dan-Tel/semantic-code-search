@@ -1,5 +1,5 @@
 from semantic_code_search.baselines.tfidf import (
-    retrieve_functions,
+    TfidfCodeSearch,
 )
 
 evaluation_cases = [
@@ -37,12 +37,16 @@ evaluation_cases = [
     },
 ]
 
+search_engine = TfidfCodeSearch(
+    "sample_repository"
+)
+
 correct_at_1 = 0
 recall_hits = 0
 reciprocal_rank_sum = 0
 
 for case in evaluation_cases:
-    results = retrieve_functions(
+    results = search_engine.retrieve(
         case["query"],
         top_k=3
     )

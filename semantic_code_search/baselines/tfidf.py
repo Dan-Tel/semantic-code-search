@@ -3,110 +3,93 @@ import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from semantic_code_search.parsing.source_files import (
-    find_source_files,
-    load_source_files,
-)
-from semantic_code_search.parsing.typescript import (
-    extract_repository_functions,
-)
+from ..parsing.typescript import extract_repository_functions
+
 
 def normalize_text(text):
-    text = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", text)
+    text = re.sub(
+        r"([a-z0-9])([A-Z])",
+        r"\1 \2",
+        text
+    )
+
     text = text.replace("_", " ")
 
     return text.lower()
 
-paths = find_source_files("sample_repository")
-source_files = load_source_files(paths)
 
-functions = extract_repository_functions("sample_repository")
+class TfidfCodeSearch:
+    def __init__(self, repository_path):
+        self.functions = extract_repository_functions(
+            repository_path
+        )
 
-documents = [
-    normalize_text(function["code"]) for function in functions 
-]
+        if not self.functions:
+            raise ValueError(
+                f"No functions found in {repository_path}"
+            )
 
-vectorizer = TfidfVectorizer()
-document_vectors = vectorizer.fit_transform(documents)
+        documents = [
+            normalize_text(function["code"])
+            for function in self.functions
+        ]
 
-def search_files(query, top_k=3):
-    # преобразовать запрос
-    query_vector = vectorizer.transform([normalize_text(query)])
+        self.vectorizer = TfidfVectorizer()
 
-    # посчитать cosine similarity
-    similarities = cosine_similarity(query_vector, document_vectors)
+        self.document_vectors = (
+            self.vectorizer.fit_transform(documents)
+        )
 
-    # отсортировать индексы
-    scores = similarities[0]
-    sorted_indices = scores.argsort()[::-1][:top_k]
+    def retrieve(self, query, top_k=3):
+        if top_k <= 0:
+            return []
 
-    for i, idx in enumerate(sorted_indices):
-        # получить source_files[idx]
-        data = source_files[idx]
+        query_vector = self.vectorizer.transform([
+            normalize_text(query)
+        ])
 
-        # вывести path и score
-        print(f"{i + 1}. {data['path']} - {scores[idx]:.4f}")
+        similarities = cosine_similarity(
+            query_vector,
+            self.document_vectors
+        )[0]
 
-def search_functions(query, top_k=3):
-    # 1. Нормализовать и преобразовать запрос
-    query_vector = vectorizer.transform([normalize_text(query)])
+        number_of_results = min(
+            top_k,
+            len(self.functions)
+        )
 
-    # 2. Посчитать cosine similarity
-    similarities = cosine_similarity(query_vector, document_vectors)
+        sorted_indices = similarities.argsort()[
+            ::-1
+        ][:number_of_results]
 
-    # 3. Получить top_k индексов
-    scores = similarities[0]
-    sorted_indices = scores.argsort()[::-1][:top_k]
+        results = []
 
-    for i, idx in enumerate(sorted_indices):
-        # 4. Для каждого индекса взять functions[idx]
-        function = functions[idx]
+        for index in sorted_indices:
+            score = similarities[index]
 
-        # 5. Вывести name, path, lines и score
-        print(f"{i + 1}. {function['name']} - {scores[idx]:.4f}")
-        print(f"   {function['path']}:{function['start_line']}-{function['end_line']}")
+            if score <= 0:
+                continue
 
-def retrieve_functions(query, top_k=3):
-    # вычисления остаются прежними
-    # 1. Нормализовать и преобразовать запрос
-    query_vector = vectorizer.transform([normalize_text(query)])
+            results.append({
+                **self.functions[index],
+                "score": float(score),
+            })
 
-    # 2. Посчитать cosine similarity
-    similarities = cosine_similarity(query_vector, document_vectors)
+        return results
 
-    # 3. Получить top_k индексов
-    scores = similarities[0]
-    sorted_indices = scores.argsort()[::-1][:top_k]
-
-    results = []
-
-    for idx in sorted_indices:
-        if scores[idx] <= 0:
-            continue
-
-        function = functions[idx]
-
-        results.append({
-            **function,
-            "score": float(scores[idx]),
-        })
-
-    return results
 
 def print_results(results):
-    for i, result in enumerate(results):
+    for position, result in enumerate(
+        results,
+        start=1
+    ):
         print(
-            f"{i + 1}. {result['name']} - "
+            f"{position}. {result['name']} - "
             f"{result['score']:.4f}"
         )
+
         print(
             f"   {result['path']}:"
             f"{result['start_line']}-"
             f"{result['end_line']}"
         )
-
-# results = retrieve_functions(
-#     "prevent zoom from exceeding maximum value"
-# )
-
-# print_results(results)
