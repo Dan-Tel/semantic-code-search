@@ -5,27 +5,11 @@ import tree_sitter_typescript as ts_typescript
 
 from source_files import find_source_files
 
+
 TS_LANGUAGE = Language(ts_typescript.language_typescript())
 
 parser = Parser(TS_LANGUAGE)
 
-
-source_path = Path("sample_repository/src/api.ts")
-source_bytes = source_path.read_bytes()
-
-tree = parser.parse(source_bytes)
-
-# print(tree.root_node)
-
-# root = tree.root_node
-
-# for child in root.named_children:
-#     print(child.type, child.start_point, child.end_point)
-
-#     declaration = child.child_by_field_name("declaration")
-
-#     if declaration is not None:
-#         print("  declaration:", declaration.type)
 
 def find_nodes_by_type(root, target_type):
     result = []
@@ -41,10 +25,12 @@ def find_nodes_by_type(root, target_type):
 
     return result
 
+
 def get_node_text(node, source_bytes):
     return source_bytes[
         node.start_byte:node.end_byte
     ].decode("utf-8")
+
 
 def extract_functions(path):
     source_bytes = Path(path).read_bytes()
@@ -115,16 +101,3 @@ def extract_repository_functions(repository_path):
         all_functions.extend(functions)
 
     return all_functions
-
-# functions = extract_repository_functions(
-#     "sample_repository"
-# )
-
-# for function in functions:
-#     print(
-#         f'{function["path"]}:'
-#         f'{function["start_line"]}-'
-#         f'{function["end_line"]} '
-#         f'{function["name"]} '
-#         f'({function["kind"]})'
-#     )
