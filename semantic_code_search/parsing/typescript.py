@@ -3,7 +3,7 @@ from pathlib import Path
 from tree_sitter import Language, Parser
 import tree_sitter_typescript as ts_typescript
 
-from source_files import find_source_files
+from .source_files import find_source_files
 
 
 TS_LANGUAGE = Language(ts_typescript.language_typescript())

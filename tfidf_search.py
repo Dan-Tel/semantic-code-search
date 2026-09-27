@@ -3,9 +3,13 @@ import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from source_files import find_source_files, load_source_files
-
-from typescript_parser import extract_repository_functions
+from semantic_code_search.parsing.source_files import (
+    find_source_files,
+    load_source_files,
+)
+from semantic_code_search.parsing.typescript import (
+    extract_repository_functions,
+)
 
 def normalize_text(text):
     text = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", text)
