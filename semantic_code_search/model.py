@@ -52,6 +52,7 @@ class SmallCodeEncoder(nn.Module):
         self.transformer = nn.TransformerEncoder(
             encoder_layer=encoder_layer,
             num_layers=number_of_layers,
+            enable_nested_tensor=False,
         )
 
     def forward(self, input_ids, attention_mask):

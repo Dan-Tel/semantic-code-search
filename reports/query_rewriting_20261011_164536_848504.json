@@ -1,0 +1,318 @@
+{
+  "timestamp": "2026-10-11T16:45:36.848467+00:00",
+  "checkpoint_epoch": 10,
+  "rewrite_model": "qwen3:8b",
+  "temperature": 0,
+  "reasoning": false,
+  "device": "cuda",
+  "top_k": 3,
+  "number_of_functions": 8,
+  "number_of_queries": 8,
+  "metrics": {
+    "Neural": {
+      "top1_accuracy": 0.25,
+      "recall_at_3": 0.625,
+      "mrr_at_3": 0.4166666666666667
+    },
+    "Neural + rewrite": {
+      "top1_accuracy": 0.5,
+      "recall_at_3": 0.75,
+      "mrr_at_3": 0.625
+    }
+  },
+  "comparison": {
+    "improved": 3,
+    "worsened": 0,
+    "unchanged": 5
+  },
+  "results": [
+    {
+      "query": "Where is the authentication token added, and how does it work?",
+      "rewritten_query": "add authentication token to request headers",
+      "expected": "addAuthToken",
+      "original_rank": null,
+      "rewritten_rank": 1,
+      "outcome": "improved",
+      "original_results": [
+        {
+          "name": "saveViewportToUrl",
+          "score": 0.23099245131015778
+        },
+        {
+          "name": "sortUsersByName",
+          "score": 0.1699630171060562
+        },
+        {
+          "name": "createApiUrl",
+          "score": 0.15693631768226624
+        }
+      ],
+      "rewritten_results": [
+        {
+          "name": "addAuthToken",
+          "score": 0.21948619186878204
+        },
+        {
+          "name": "saveViewportToUrl",
+          "score": 0.20111817121505737
+        },
+        {
+          "name": "createApiUrl",
+          "score": 0.11605244874954224
+        }
+      ]
+    },
+    {
+      "query": "Where is the authentication token removed from a request?",
+      "rewritten_query": "remove authentication token from request",
+      "expected": "removeAuthToken",
+      "original_rank": null,
+      "rewritten_rank": null,
+      "outcome": "unchanged",
+      "original_results": [
+        {
+          "name": "sortUsersByName",
+          "score": 0.3628121018409729
+        },
+        {
+          "name": "saveViewportToUrl",
+          "score": 0.2703079581260681
+        },
+        {
+          "name": "createApiUrl",
+          "score": 0.19250422716140747
+        }
+      ],
+      "rewritten_results": [
+        {
+          "name": "saveViewportToUrl",
+          "score": 0.3488859534263611
+        },
+        {
+          "name": "sortUsersByName",
+          "score": 0.343822181224823
+        },
+        {
+          "name": "addAuthToken",
+          "score": 0.30099767446517944
+        }
+      ]
+    },
+    {
+      "query": "How does the code combine a base URL with an API endpoint?",
+      "rewritten_query": "combine base URL with API endpoint",
+      "expected": "createApiUrl",
+      "original_rank": 2,
+      "rewritten_rank": 2,
+      "outcome": "unchanged",
+      "original_results": [
+        {
+          "name": "saveViewportToUrl",
+          "score": 0.35273057222366333
+        },
+        {
+          "name": "createApiUrl",
+          "score": 0.2038297951221466
+        },
+        {
+          "name": "sortUsersByName",
+          "score": 0.19561056792736053
+        }
+      ],
+      "rewritten_results": [
+        {
+          "name": "saveViewportToUrl",
+          "score": 0.10582619905471802
+        },
+        {
+          "name": "createApiUrl",
+          "score": 0.04665244370698929
+        },
+        {
+          "name": "limitZoom",
+          "score": -0.0022238902747631073
+        }
+      ]
+    },
+    {
+      "query": "Where is the viewport position and zoom saved in the browser URL?",
+      "rewritten_query": "extract viewport position and zoom from browser URL",
+      "expected": "saveViewportToUrl",
+      "original_rank": 1,
+      "rewritten_rank": 1,
+      "outcome": "unchanged",
+      "original_results": [
+        {
+          "name": "saveViewportToUrl",
+          "score": 0.35847219824790955
+        },
+        {
+          "name": "limitZoom",
+          "score": 0.2626427412033081
+        },
+        {
+          "name": "removeAuthToken",
+          "score": 0.1365356147289276
+        }
+      ],
+      "rewritten_results": [
+        {
+          "name": "saveViewportToUrl",
+          "score": 0.45774078369140625
+        },
+        {
+          "name": "limitZoom",
+          "score": 0.346564918756485
+        },
+        {
+          "name": "createApiUrl",
+          "score": 0.24509288370609283
+        }
+      ]
+    },
+    {
+      "query": "How does the code prevent zooming beyond the allowed limits?",
+      "rewritten_query": "prevent zooming beyond allowed limits",
+      "expected": "limitZoom",
+      "original_rank": null,
+      "rewritten_rank": null,
+      "outcome": "unchanged",
+      "original_results": [
+        {
+          "name": "filterDeletedUsers",
+          "score": 0.32496488094329834
+        },
+        {
+          "name": "saveViewportToUrl",
+          "score": 0.29459694027900696
+        },
+        {
+          "name": "removeAuthToken",
+          "score": 0.2885317802429199
+        }
+      ],
+      "rewritten_results": [
+        {
+          "name": "filterDeletedUsers",
+          "score": 0.3453434109687805
+        },
+        {
+          "name": "saveViewportToUrl",
+          "score": 0.24328166246414185
+        },
+        {
+          "name": "removeAuthToken",
+          "score": 0.23926109075546265
+        }
+      ]
+    },
+    {
+      "query": "Where are users sorted alphabetically by name?",
+      "rewritten_query": "sort users alphabetically by name",
+      "expected": "sortUsersByName",
+      "original_rank": 1,
+      "rewritten_rank": 1,
+      "outcome": "unchanged",
+      "original_results": [
+        {
+          "name": "sortUsersByName",
+          "score": 0.34359607100486755
+        },
+        {
+          "name": "findUserById",
+          "score": 0.21973496675491333
+        },
+        {
+          "name": "addAuthToken",
+          "score": 0.17423708736896515
+        }
+      ],
+      "rewritten_results": [
+        {
+          "name": "sortUsersByName",
+          "score": 0.40745940804481506
+        },
+        {
+          "name": "findUserById",
+          "score": 0.2179059386253357
+        },
+        {
+          "name": "addAuthToken",
+          "score": 0.07583354413509369
+        }
+      ]
+    },
+    {
+      "query": "Where are deleted users filtered out?",
+      "rewritten_query": "filter deleted users",
+      "expected": "filterDeletedUsers",
+      "original_rank": 2,
+      "rewritten_rank": 1,
+      "outcome": "improved",
+      "original_results": [
+        {
+          "name": "sortUsersByName",
+          "score": 0.32660210132598877
+        },
+        {
+          "name": "filterDeletedUsers",
+          "score": 0.29353129863739014
+        },
+        {
+          "name": "findUserById",
+          "score": 0.25140926241874695
+        }
+      ],
+      "rewritten_results": [
+        {
+          "name": "filterDeletedUsers",
+          "score": 0.40369099378585815
+        },
+        {
+          "name": "findUserById",
+          "score": 0.29880574345588684
+        },
+        {
+          "name": "sortUsersByName",
+          "score": 0.25097161531448364
+        }
+      ]
+    },
+    {
+      "query": "How can a user be found by their identifier?",
+      "rewritten_query": "locate user by identifier",
+      "expected": "findUserById",
+      "original_rank": 3,
+      "rewritten_rank": 2,
+      "outcome": "improved",
+      "original_results": [
+        {
+          "name": "sortUsersByName",
+          "score": 0.1661912500858307
+        },
+        {
+          "name": "saveViewportToUrl",
+          "score": 0.12055863440036774
+        },
+        {
+          "name": "findUserById",
+          "score": 0.05945495888590813
+        }
+      ],
+      "rewritten_results": [
+        {
+          "name": "sortUsersByName",
+          "score": 0.19969022274017334
+        },
+        {
+          "name": "findUserById",
+          "score": 0.03306880593299866
+        },
+        {
+          "name": "saveViewportToUrl",
+          "score": 0.0066040195524692535
+        }
+      ]
+    }
+  ]
+}
