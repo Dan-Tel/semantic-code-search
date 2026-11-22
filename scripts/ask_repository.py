@@ -100,10 +100,8 @@ def save_log(
 
 
 def main():
-    # Загружаем encoder и индексируем функции один раз.
     search, _ = load_repository_search(ROOT)
 
-    # Подключаемся к локальной Ollama.
     llm = ChatOllama(
         model=MODEL_NAME,
         base_url="http://localhost:11434",
@@ -127,11 +125,9 @@ def main():
 
         started_at = perf_counter()
 
-        # 1. Поиск нашей моделью и сборка контекста.
         retrieval = retrieve_context(search, query)
         print_results(retrieval["results"])
 
-        # 2. Объяснение найденного кода локальной LLM.
         answer = generate_answer(
             llm,
             query,
@@ -143,7 +139,6 @@ def main():
         print("\nAnswer:")
         print(answer)
 
-        # 3. Сохранение запроса и ответа на компьютере.
         save_log(
             query,
             retrieval,

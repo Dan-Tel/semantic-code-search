@@ -57,7 +57,6 @@ QUERIES_BY_FUNCTION = {
     ],
 }
 
-# evaluate_cases ожидает пары (запрос, имя правильной функции).
 PARAPHRASE_CASES = [
     (query, function_name)
     for function_name, queries in QUERIES_BY_FUNCTION.items()

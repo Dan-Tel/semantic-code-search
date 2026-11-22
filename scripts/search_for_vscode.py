@@ -45,21 +45,14 @@ def main():
     if not args.query.strip() or args.top_k < 1:
         raise ValueError("Query must not be empty; top-k must be positive")
 
-    # stdout используется только для JSON.
-    # Диагностические сообщения отправляем в stderr.
     with redirect_stdout(sys.stderr):
         payload = run_search(args, repository)
 
     print(json.dumps(payload, ensure_ascii=False, default=str))
 
 
-def run_search(args, repository):
-    from semantic_code_search.checkpoint import load_checkpoint
-    from semantic_code_search.device import get_device
-    from semantic_code_search.model import create_model
+def extract_workspace_functions(repository):
     from semantic_code_search.parsing.typescript import extract_functions
-    from semantic_code_search.search import NeuralCodeSearch
-    from semantic_code_search.tokenization import load_tokenizer
 
     functions = []
 
@@ -86,6 +79,13 @@ def run_search(args, repository):
 
             functions.extend(extract_functions(path))
 
+    return functions
+
+
+def run_search(args, repository):
+    from semantic_code_search.search import load_function_search
+
+    functions = extract_workspace_functions(repository)
     if not functions:
         return {
             "results": [],
@@ -93,22 +93,7 @@ def run_search(args, repository):
             "device": None,
         }
 
-    device = get_device()
-    tokenizer = load_tokenizer(ROOT / "artifacts/tokenizer.json")
-    model = create_model(tokenizer).to(device)
-
-    checkpoint = load_checkpoint(
-        ROOT / "checkpoints/small_code_encoder_q2c_best.pt",
-        model,
-        device,
-    )
-
-    search = NeuralCodeSearch(
-        model,
-        tokenizer,
-        functions,
-        device,
-    )
+    search, checkpoint = load_function_search(ROOT, functions)
 
     search_query = args.query
     warnings = []
@@ -145,7 +130,7 @@ def run_search(args, repository):
         "search_query": search_query,
         "warnings": warnings,
         "function_count": len(functions),
-        "device": str(device),
+        "device": str(search.device),
         "epoch": checkpoint.get("epoch"),
     }
 

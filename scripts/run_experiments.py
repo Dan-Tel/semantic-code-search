@@ -89,7 +89,6 @@ def fingerprint(data):
 
 
 def load_cached_pairs(split, limit):
-    # Выборка фиксирована. --seed меняет обучение, а не состав validation.
     path = DATA_DIR / f"{split}_{limit}_seed42.json"
 
     if path.exists():
@@ -124,8 +123,6 @@ def synchronize(device):
 
 def run_experiment(args, train_pairs, validation_loader, tokenizer,
                    device, experiment_dir, common_config):
-    # Сбрасываем seed перед созданием каждой модели:
-    # эксперименты разного размера стартуют с одинаковых весов.
     set_seed(args.seed)
     model = create_model(tokenizer).to(device)
     optimizer = torch.optim.AdamW(

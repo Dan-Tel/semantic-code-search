@@ -12,8 +12,6 @@ ROOT = Path(__file__).resolve().parents[1]
 MODEL_NAME = "qwen3:8b"
 TOP_K = 3
 
-# Не меняем вопросы во время сравнения.
-# Имена функций в нашем sample_repository уникальны.
 EVALUATION_CASES = [
     {
         "query": (
@@ -66,7 +64,6 @@ EVALUATION_CASES = [
 
 
 def rewrite_query(llm, query):
-    # Та же инструкция и примеры, что в нашем графе.
     response = llm.invoke([
         (
             "system",
@@ -152,13 +149,11 @@ def main():
         query = case["query"]
         expected = case["expected"]
 
-        # 1. Ищем по исходному вопросу.
         original_results = search.retrieve(
             query,
             top_k=TOP_K,
         )
 
-        # 2. Переформулируем и ищем той же моделью.
         rewritten_query = rewrite_query(llm, query)
 
         rewritten_results = search.retrieve(
@@ -166,14 +161,12 @@ def main():
             top_k=TOP_K,
         )
 
-        # 3. Находим позицию ожидаемой функции в top-3.
         original_rank = get_rank(original_results, expected)
         rewritten_rank = get_rank(rewritten_results, expected)
 
         original_ranks.append(original_rank)
         rewritten_ranks.append(rewritten_rank)
 
-        # Сравниваем по reciprocal rank в пределах top-3.
         original_rr = (
             1 / original_rank if original_rank is not None else 0
         )
@@ -263,7 +256,6 @@ def main():
         "results": case_results,
     }
 
-    # Каждый запуск сохраняется в отдельный файл.
     timestamp = datetime.now(timezone.utc).strftime(
         "%Y%m%d_%H%M%S_%f"
     )

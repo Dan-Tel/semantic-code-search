@@ -22,7 +22,6 @@ from semantic_code_search.evaluation import (
 from semantic_code_search.device import get_device
 
 
-# Configuration
 TRAIN_LIMIT = 5000
 VALIDATION_LIMIT = 500
 

@@ -95,7 +95,6 @@ def evaluate_cases(
 
     similarities = query_vectors @ code_vectors.T
 
-    # Полный рейтинг нужен для обычного MRR, без ограничения top-3.
     rankings = similarities.argsort(
         dim=1,
         descending=True,
@@ -163,7 +162,6 @@ def main():
 
     names = [function["name"] for function in functions]
 
-    # В нашем маленьком fixture ожидается одна функция каждого имени.
     for expected, _, _ in CASES:
         if names.count(expected) != 1:
             raise ValueError(
@@ -210,7 +208,6 @@ def main():
         print("Epoch:", checkpoint.get("epoch"))
         print("Saved validation metrics:", checkpoint.get("metrics"))
 
-        # Для каждых весов пересчитываем векторы функций.
         code_vectors = encode(
             model,
             tokenizer,

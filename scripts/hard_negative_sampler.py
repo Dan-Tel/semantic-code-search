@@ -13,14 +13,12 @@ class HardNegativeBatchSampler:
         self.pool_size = pool_size
         self.rng = random.Random(seed)
 
-        # Соседей ищем по оригинальным train-описаниям, без демо-запросов.
         self.vectors = TfidfVectorizer(
             stop_words="english",
             ngram_range=(1, 2),
             min_df=2,
         ).fit_transform([pair["query"] for pair in pairs])
 
-        # Не подбираем как сложного соседа точную копию запроса или кода.
         self.queries = [pair["query"].strip().casefold() for pair in pairs]
         self.codes = [pair["code"].strip() for pair in pairs]
 
@@ -67,8 +65,6 @@ class HardNegativeBatchSampler:
                     yield batch
                     batch = []
 
-            # Переносим неполный батч в следующий блок, чтобы число
-            # шагов осталось тем же, что и у обычного DataLoader.
             if batch:
                 for candidate in order[start + self.pool_size :]:
                     if candidate in remaining:

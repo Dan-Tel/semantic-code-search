@@ -64,14 +64,7 @@ class NeuralCodeSearch:
         ]
 
 
-def load_repository_search(root, repository_path=None, batch_size=32):
-    """Load the saved model and index repository functions once."""
-    root = Path(root).resolve()
-    repository_path = (
-        Path(repository_path).resolve()
-        if repository_path is not None
-        else root / "tests/fixtures/sample_repository"
-    )
+def load_function_search(root, functions, batch_size=32):
     device = get_device()
     tokenizer = load_tokenizer(root / "artifacts/tokenizer.json")
     model = create_model(tokenizer).to(device)
@@ -80,9 +73,20 @@ def load_repository_search(root, repository_path=None, batch_size=32):
         model=model,
         device=device,
     )
-    functions = extract_repository_functions(repository_path)
     search = NeuralCodeSearch(model, tokenizer, functions, device, batch_size)
-    print("Device:", device)
+    return search, checkpoint
+
+
+def load_repository_search(root, repository_path=None, batch_size=32):
+    root = Path(root).resolve()
+    repository_path = (
+        Path(repository_path).resolve()
+        if repository_path is not None
+        else root / "tests/fixtures/sample_repository"
+    )
+    functions = extract_repository_functions(repository_path)
+    search, checkpoint = load_function_search(root, functions, batch_size)
+    print("Device:", search.device)
     print("Loaded epoch:", checkpoint.get("epoch"))
     print("Functions found:", len(functions))
     print("Code vectors shape:", search.code_vectors.shape)

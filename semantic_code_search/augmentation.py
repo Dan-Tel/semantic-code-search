@@ -49,7 +49,6 @@ class QueryAugmentationDataset:
         return len(self.pairs)
 
     def __getitem__(self, index):
-        # Копия словаря: исходные данные не изменяем.
         pair = dict(self.pairs[index])
 
         if index in self.variants:

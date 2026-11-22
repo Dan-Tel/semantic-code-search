@@ -210,7 +210,6 @@ function activate(context) {
 
     if (!query?.trim()) return;
 
-    // Another command may have started while the input box was open.
     if (running) {
       vscode.window.showInformationMessage("A request is already running.");
       return;
