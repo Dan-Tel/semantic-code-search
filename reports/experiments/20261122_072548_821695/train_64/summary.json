@@ -1,0 +1,10 @@
+{
+  "train_pairs": 64,
+  "best_epoch": 1,
+  "top1_accuracy": 0.125,
+  "recall_at_5": 0.4375,
+  "mrr": 0.26261386275291443,
+  "total_train_minutes": 0.14791931333311367,
+  "total_optimizer_steps": 8,
+  "checkpoint": "reports\\experiments\\20261122_072548_821695\\train_64\\best.pt"
+}

@@ -1,0 +1,2 @@
+train_pairs,best_epoch,top1_accuracy,recall_at_5,mrr,total_train_minutes,total_optimizer_steps,checkpoint
+30000,3,0.208,0.4180000126361847,0.30646175146102905,1.3083133566668645,2814,reports\experiments\20261122_081111_608937\train_30000\best.pt

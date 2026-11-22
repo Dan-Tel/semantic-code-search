@@ -13,6 +13,7 @@ from semantic_code_search.tokenization import (
     load_tokenizer,
     tokenize_batch,
 )
+from scripts.paraphrase_cases import PARAPHRASE_CASES
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -178,6 +179,7 @@ def main():
             (paraphrase, expected)
             for expected, direct, paraphrase in CASES
         ],
+        "paraphrases_40": PARAPHRASE_CASES,
     }
 
     summary = []

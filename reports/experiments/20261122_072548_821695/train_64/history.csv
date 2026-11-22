@@ -1,0 +1,2 @@
+epoch,train_loss,correct,top1_accuracy,recall_at_5,mrr,train_seconds,validation_seconds,optimizer_steps
+1,2.1327585875988007,2,0.125,0.4375,0.26261386275291443,8.87515879998682,0.024869799992302433,8

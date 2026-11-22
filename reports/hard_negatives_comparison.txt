@@ -1,0 +1,703 @@
+Device: cuda
+
+======================================================================
+Model 1: C:\Users\basep\Coding\AI\NLP\semantic-code-search\reports\experiments\20261122_085605_719185\train_30000\best.pt
+Epoch: 3
+Saved validation metrics: {'correct': 105, 'top1_accuracy': 0.21, 'recall_at_5': 0.4059999883174896, 'mrr': 0.3075364828109741}
+
+--- direct ---
+
+Query: add authentication token to request headers
+Expected: addAuthToken | Rank: 2
+  1. removeAuthToken | 0.4465
+  2. addAuthToken | 0.3705
+  3. saveViewportToUrl | 0.2140
+
+Query: remove authentication token from request headers
+Expected: removeAuthToken | Rank: 1
+  1. removeAuthToken | 0.4718
+  2. addAuthToken | 0.3763
+  3. sortUsersByName | 0.2816
+
+Query: combine a base URL and an endpoint
+Expected: createApiUrl | Rank: 1
+  1. createApiUrl | 0.2208
+  2. saveViewportToUrl | 0.2076
+  3. sortUsersByName | 0.1511
+
+Query: save viewport position and zoom in the URL
+Expected: saveViewportToUrl | Rank: 2
+  1. limitZoom | 0.4528
+  2. saveViewportToUrl | 0.3162
+  3. removeAuthToken | 0.1200
+
+Query: limit zoom between minimum and maximum
+Expected: limitZoom | Rank: 1
+  1. limitZoom | 0.3764
+  2. filterDeletedUsers | 0.1581
+  3. createApiUrl | 0.1323
+
+Query: sort users alphabetically by name
+Expected: sortUsersByName | Rank: 1
+  1. sortUsersByName | 0.4225
+  2. findUserById | 0.2064
+  3. filterDeletedUsers | 0.1928
+
+Query: filter out deleted users
+Expected: filterDeletedUsers | Rank: 1
+  1. filterDeletedUsers | 0.4339
+  2. findUserById | 0.2932
+  3. removeAuthToken | 0.1853
+
+Query: find a user by id
+Expected: findUserById | Rank: 1
+  1. findUserById | 0.4376
+  2. filterDeletedUsers | 0.2817
+  3. sortUsersByName | 0.1891
+
+--- paraphrased ---
+
+Query: attach bearer credentials to an outgoing HTTP request
+Expected: addAuthToken | Rank: 3
+  1. filterDeletedUsers | 0.4058
+  2. removeAuthToken | 0.3751
+  3. addAuthToken | 0.3291
+
+Query: strip authorization credentials before sending a request
+Expected: removeAuthToken | Rank: 1
+  1. removeAuthToken | 0.3573
+  2. sortUsersByName | 0.3405
+  3. addAuthToken | 0.3203
+
+Query: build a service address by joining its root with a resource path
+Expected: createApiUrl | Rank: 3
+  1. addAuthToken | 0.3091
+  2. sortUsersByName | 0.3086
+  3. createApiUrl | 0.2332
+
+Query: persist the current map location and magnification in the browser address
+Expected: saveViewportToUrl | Rank: 8
+  1. addAuthToken | 0.3066
+  2. createApiUrl | 0.2381
+  3. sortUsersByName | 0.2299
+
+Query: clamp the magnification so it stays within the permitted bounds
+Expected: limitZoom | Rank: 1
+  1. limitZoom | 0.2026
+  2. sortUsersByName | 0.1867
+  3. saveViewportToUrl | 0.1756
+
+Query: arrange people in alphabetical order using their names
+Expected: sortUsersByName | Rank: 1
+  1. sortUsersByName | 0.3546
+  2. createApiUrl | 0.3211
+  3. saveViewportToUrl | 0.3052
+
+Query: keep only people whose records have not been marked as removed
+Expected: filterDeletedUsers | Rank: 5
+  1. sortUsersByName | 0.3935
+  2. createApiUrl | 0.1806
+  3. addAuthToken | 0.1585
+
+Query: look up a person using their identifier
+Expected: findUserById | Rank: 8
+  1. removeAuthToken | 0.3010
+  2. addAuthToken | 0.2691
+  3. filterDeletedUsers | 0.2589
+
+--- paraphrases_40 ---
+
+Query: Put a bearer token into an existing request's headers.
+Expected: addAuthToken | Rank: 1
+  1. addAuthToken | 0.4911
+  2. removeAuthToken | 0.4888
+  3. saveViewportToUrl | 0.3433
+
+Query: Copy the request and include the supplied token as a bearer credential.
+Expected: addAuthToken | Rank: 1
+  1. addAuthToken | 0.3941
+  2. removeAuthToken | 0.3353
+  3. sortUsersByName | 0.3196
+
+Query: Set the Authorization field to Bearer followed by the given token.
+Expected: addAuthToken | Rank: 1
+  1. addAuthToken | 0.3538
+  2. createApiUrl | 0.2923
+  3. removeAuthToken | 0.2532
+
+Query: Keep the other HTTP headers while attaching the supplied credential.
+Expected: addAuthToken | Rank: 2
+  1. removeAuthToken | 0.3135
+  2. addAuthToken | 0.2714
+  3. filterDeletedUsers | 0.2638
+
+Query: Where is a raw token turned into a bearer authorization header?
+Expected: addAuthToken | Rank: 1
+  1. addAuthToken | 0.2567
+  2. sortUsersByName | 0.1829
+  3. createApiUrl | 0.1679
+
+Query: Return a copy of the request without its Authorization header.
+Expected: removeAuthToken | Rank: 4
+  1. createApiUrl | 0.2910
+  2. limitZoom | 0.2690
+  3. addAuthToken | 0.2480
+
+Query: Which helper drops the bearer credential from the headers?
+Expected: removeAuthToken | Rank: 1
+  1. removeAuthToken | 0.2393
+  2. findUserById | 0.2195
+  3. sortUsersByName | 0.2173
+
+Query: Clear the request's authorization field while preserving its other headers.
+Expected: removeAuthToken | Rank: 1
+  1. removeAuthToken | 0.2715
+  2. addAuthToken | 0.1914
+  3. sortUsersByName | 0.1837
+
+Query: Take an HTTP request and return it without the header that carries credentials.
+Expected: removeAuthToken | Rank: 2
+  1. addAuthToken | 0.3559
+  2. removeAuthToken | 0.3471
+  3. createApiUrl | 0.3298
+
+Query: Where is Authorization deleted from a copy of the headers?
+Expected: removeAuthToken | Rank: 1
+  1. removeAuthToken | 0.2337
+  2. createApiUrl | 0.2204
+  3. limitZoom | 0.1950
+
+Query: Join the server's base address and a route with a slash.
+Expected: createApiUrl | Rank: 4
+  1. addAuthToken | 0.3688
+  2. removeAuthToken | 0.2965
+  3. saveViewportToUrl | 0.2932
+
+Query: Turn a service root and a relative endpoint into one URL string.
+Expected: createApiUrl | Rank: 1
+  1. createApiUrl | 0.4804
+  2. saveViewportToUrl | 0.3581
+  3. removeAuthToken | 0.3518
+
+Query: Which helper builds a request address from two path components?
+Expected: createApiUrl | Rank: 4
+  1. addAuthToken | 0.3949
+  2. removeAuthToken | 0.3487
+  3. sortUsersByName | 0.2744
+
+Query: Append an endpoint to the API root to form the full address.
+Expected: createApiUrl | Rank: 1
+  1. createApiUrl | 0.3320
+  2. saveViewportToUrl | 0.2781
+  3. addAuthToken | 0.2549
+
+Query: Where does the code put a forward slash between the base and the endpoint?
+Expected: createApiUrl | Rank: 5
+  1. limitZoom | 0.2702
+  2. filterDeletedUsers | 0.2633
+  3. saveViewportToUrl | 0.2315
+
+Query: Write the map's center coordinates and zoom level into the query string.
+Expected: saveViewportToUrl | Rank: 4
+  1. limitZoom | 0.3887
+  2. addAuthToken | 0.3761
+  3. createApiUrl | 0.3603
+
+Query: Update the address bar to reflect the current view without navigating away.
+Expected: saveViewportToUrl | Rank: 1
+  1. saveViewportToUrl | 0.2415
+  2. createApiUrl | 0.1975
+  3. addAuthToken | 0.1848
+
+Query: Which helper replaces the current history entry with the view settings?
+Expected: saveViewportToUrl | Rank: 1
+  1. saveViewportToUrl | 0.2559
+  2. removeAuthToken | 0.1675
+  3. createApiUrl | 0.1352
+
+Query: Put the current x and y center and scale into browser URL parameters.
+Expected: saveViewportToUrl | Rank: 3
+  1. limitZoom | 0.1623
+  2. removeAuthToken | 0.1111
+  3. saveViewportToUrl | 0.1041
+
+Query: Store the visible area settings in the address bar with replaceState.
+Expected: saveViewportToUrl | Rank: 3
+  1. sortUsersByName | 0.2270
+  2. createApiUrl | 0.2146
+  3. saveViewportToUrl | 0.2139
+
+Query: Cap the zoom at its upper bound and raise it if it falls below the lower bound.
+Expected: limitZoom | Rank: 1
+  1. limitZoom | 0.3243
+  2. saveViewportToUrl | 0.2581
+  3. sortUsersByName | 0.1765
+
+Query: Which helper returns the closest allowed value when the zoom is out of range?
+Expected: limitZoom | Rank: 2
+  1. saveViewportToUrl | 0.3405
+  2. limitZoom | 0.2884
+  3. removeAuthToken | 0.2873
+
+Query: Leave valid zoom levels alone and bring out-of-range ones back to the boundary.
+Expected: limitZoom | Rank: 2
+  1. saveViewportToUrl | 0.4243
+  2. limitZoom | 0.4185
+  3. addAuthToken | 0.2394
+
+Query: Apply both a floor and a ceiling to the requested magnification.
+Expected: limitZoom | Rank: 1
+  1. limitZoom | 0.3217
+  2. removeAuthToken | 0.3077
+  3. saveViewportToUrl | 0.2813
+
+Query: Where are Math.min and Math.max used to constrain the zoom level?
+Expected: limitZoom | Rank: 1
+  1. limitZoom | 0.3845
+  2. filterDeletedUsers | 0.1757
+  3. addAuthToken | 0.1703
+
+Query: Return a copy of the user list ordered by each person's name.
+Expected: sortUsersByName | Rank: 1
+  1. sortUsersByName | 0.4508
+  2. filterDeletedUsers | 0.3244
+  3. createApiUrl | 0.2570
+
+Query: Which helper uses locale-aware comparison to order account names?
+Expected: sortUsersByName | Rank: 4
+  1. createApiUrl | 0.4179
+  2. limitZoom | 0.3843
+  3. saveViewportToUrl | 0.3072
+
+Query: Put the people in A-to-Z order without changing the original array.
+Expected: sortUsersByName | Rank: 1
+  1. sortUsersByName | 0.3457
+  2. limitZoom | 0.3350
+  3. filterDeletedUsers | 0.2564
+
+Query: Order records by their name field using the language's string comparison rules.
+Expected: sortUsersByName | Rank: 1
+  1. sortUsersByName | 0.4672
+  2. createApiUrl | 0.4467
+  3. saveViewportToUrl | 0.3326
+
+Query: Where is localeCompare called on the names in the user list?
+Expected: sortUsersByName | Rank: 5
+  1. saveViewportToUrl | 0.2993
+  2. limitZoom | 0.2812
+  3. createApiUrl | 0.1510
+
+Query: Return only user records whose deletion flag is false.
+Expected: filterDeletedUsers | Rank: 2
+  1. sortUsersByName | 0.2820
+  2. filterDeletedUsers | 0.2688
+  3. findUserById | 0.2654
+
+Query: Which helper ignores accounts flagged as deleted?
+Expected: filterDeletedUsers | Rank: 7
+  1. removeAuthToken | 0.3052
+  2. createApiUrl | 0.2700
+  3. addAuthToken | 0.2670
+
+Query: Drop soft-deleted entries from the list without deleting any records.
+Expected: filterDeletedUsers | Rank: 4
+  1. sortUsersByName | 0.2504
+  2. saveViewportToUrl | 0.2131
+  3. limitZoom | 0.1965
+
+Query: Build a list of remaining users by checking each record's deleted field.
+Expected: filterDeletedUsers | Rank: 4
+  1. sortUsersByName | 0.3513
+  2. saveViewportToUrl | 0.3457
+  3. addAuthToken | 0.3205
+
+Query: Where is the user list screened for records that should no longer appear?
+Expected: filterDeletedUsers | Rank: 7
+  1. sortUsersByName | 0.1547
+  2. saveViewportToUrl | 0.1481
+  3. createApiUrl | 0.1238
+
+Query: Return the first account whose ID matches the supplied value.
+Expected: findUserById | Rank: 3
+  1. createApiUrl | 0.2713
+  2. sortUsersByName | 0.2018
+  3. findUserById | 0.1567
+
+Query: Search the user array for the record with the requested identifier.
+Expected: findUserById | Rank: 2
+  1. removeAuthToken | 0.3279
+  2. findUserById | 0.2995
+  3. filterDeletedUsers | 0.2750
+
+Query: Which helper returns undefined if no account has the given ID?
+Expected: findUserById | Rank: 7
+  1. createApiUrl | 0.3866
+  2. sortUsersByName | 0.2712
+  3. saveViewportToUrl | 0.2522
+
+Query: Fetch one matching user from an in-memory list by comparing IDs.
+Expected: findUserById | Rank: 1
+  1. findUserById | 0.3226
+  2. removeAuthToken | 0.3058
+  3. saveViewportToUrl | 0.2617
+
+Query: Where does the code scan for an exact match on the user's id field?
+Expected: findUserById | Rank: 2
+  1. limitZoom | 0.2617
+  2. findUserById | 0.2387
+  3. sortUsersByName | 0.2169
+
+======================================================================
+Model 2: C:\Users\basep\Coding\AI\NLP\semantic-code-search\reports\experiments\20261122_101320_961852\train_30000\best.pt
+Epoch: 3
+Saved validation metrics: {'correct': 107, 'top1_accuracy': 0.214, 'recall_at_5': 0.40400001406669617, 'mrr': 0.30640891194343567}
+
+--- direct ---
+
+Query: add authentication token to request headers
+Expected: addAuthToken | Rank: 2
+  1. removeAuthToken | 0.3545
+  2. addAuthToken | 0.3012
+  3. createApiUrl | 0.2020
+
+Query: remove authentication token from request headers
+Expected: removeAuthToken | Rank: 1
+  1. removeAuthToken | 0.3424
+  2. addAuthToken | 0.2463
+  3. createApiUrl | 0.2018
+
+Query: combine a base URL and an endpoint
+Expected: createApiUrl | Rank: 2
+  1. saveViewportToUrl | 0.2695
+  2. createApiUrl | 0.2409
+  3. removeAuthToken | 0.1493
+
+Query: save viewport position and zoom in the URL
+Expected: saveViewportToUrl | Rank: 2
+  1. limitZoom | 0.3649
+  2. saveViewportToUrl | 0.3438
+  3. removeAuthToken | 0.1113
+
+Query: limit zoom between minimum and maximum
+Expected: limitZoom | Rank: 1
+  1. limitZoom | 0.3041
+  2. saveViewportToUrl | 0.1613
+  3. filterDeletedUsers | 0.0982
+
+Query: sort users alphabetically by name
+Expected: sortUsersByName | Rank: 1
+  1. sortUsersByName | 0.3358
+  2. createApiUrl | 0.2143
+  3. findUserById | 0.1878
+
+Query: filter out deleted users
+Expected: filterDeletedUsers | Rank: 1
+  1. filterDeletedUsers | 0.4195
+  2. findUserById | 0.2755
+  3. saveViewportToUrl | 0.1831
+
+Query: find a user by id
+Expected: findUserById | Rank: 1
+  1. findUserById | 0.4297
+  2. filterDeletedUsers | 0.2238
+  3. sortUsersByName | 0.2227
+
+--- paraphrased ---
+
+Query: attach bearer credentials to an outgoing HTTP request
+Expected: addAuthToken | Rank: 5
+  1. sortUsersByName | 0.2926
+  2. findUserById | 0.2898
+  3. filterDeletedUsers | 0.2822
+
+Query: strip authorization credentials before sending a request
+Expected: removeAuthToken | Rank: 5
+  1. sortUsersByName | 0.3674
+  2. filterDeletedUsers | 0.2909
+  3. findUserById | 0.2506
+
+Query: build a service address by joining its root with a resource path
+Expected: createApiUrl | Rank: 6
+  1. sortUsersByName | 0.3949
+  2. addAuthToken | 0.3624
+  3. filterDeletedUsers | 0.3107
+
+Query: persist the current map location and magnification in the browser address
+Expected: saveViewportToUrl | Rank: 3
+  1. addAuthToken | 0.3211
+  2. createApiUrl | 0.2613
+  3. saveViewportToUrl | 0.2478
+
+Query: clamp the magnification so it stays within the permitted bounds
+Expected: limitZoom | Rank: 5
+  1. sortUsersByName | 0.2078
+  2. saveViewportToUrl | 0.1602
+  3. filterDeletedUsers | 0.1421
+
+Query: arrange people in alphabetical order using their names
+Expected: sortUsersByName | Rank: 3
+  1. createApiUrl | 0.3279
+  2. saveViewportToUrl | 0.2790
+  3. sortUsersByName | 0.2758
+
+Query: keep only people whose records have not been marked as removed
+Expected: filterDeletedUsers | Rank: 7
+  1. sortUsersByName | 0.3799
+  2. createApiUrl | 0.3169
+  3. saveViewportToUrl | 0.2449
+
+Query: look up a person using their identifier
+Expected: findUserById | Rank: 6
+  1. sortUsersByName | 0.2279
+  2. removeAuthToken | 0.2233
+  3. filterDeletedUsers | 0.2100
+
+--- paraphrases_40 ---
+
+Query: Put a bearer token into an existing request's headers.
+Expected: addAuthToken | Rank: 2
+  1. removeAuthToken | 0.3339
+  2. addAuthToken | 0.3170
+  3. createApiUrl | 0.2835
+
+Query: Copy the request and include the supplied token as a bearer credential.
+Expected: addAuthToken | Rank: 2
+  1. sortUsersByName | 0.3034
+  2. addAuthToken | 0.2738
+  3. removeAuthToken | 0.2586
+
+Query: Set the Authorization field to Bearer followed by the given token.
+Expected: addAuthToken | Rank: 1
+  1. addAuthToken | 0.2616
+  2. createApiUrl | 0.2547
+  3. removeAuthToken | 0.2048
+
+Query: Keep the other HTTP headers while attaching the supplied credential.
+Expected: addAuthToken | Rank: 6
+  1. sortUsersByName | 0.2586
+  2. removeAuthToken | 0.2272
+  3. filterDeletedUsers | 0.2266
+
+Query: Where is a raw token turned into a bearer authorization header?
+Expected: addAuthToken | Rank: 4
+  1. createApiUrl | 0.1841
+  2. sortUsersByName | 0.1662
+  3. findUserById | 0.1498
+
+Query: Return a copy of the request without its Authorization header.
+Expected: removeAuthToken | Rank: 8
+  1. sortUsersByName | 0.2925
+  2. findUserById | 0.2925
+  3. createApiUrl | 0.2773
+
+Query: Which helper drops the bearer credential from the headers?
+Expected: removeAuthToken | Rank: 4
+  1. sortUsersByName | 0.1720
+  2. filterDeletedUsers | 0.1039
+  3. findUserById | 0.0959
+
+Query: Clear the request's authorization field while preserving its other headers.
+Expected: removeAuthToken | Rank: 1
+  1. removeAuthToken | 0.2194
+  2. sortUsersByName | 0.2189
+  3. createApiUrl | 0.2070
+
+Query: Take an HTTP request and return it without the header that carries credentials.
+Expected: removeAuthToken | Rank: 3
+  1. sortUsersByName | 0.3108
+  2. createApiUrl | 0.2834
+  3. removeAuthToken | 0.2754
+
+Query: Where is Authorization deleted from a copy of the headers?
+Expected: removeAuthToken | Rank: 6
+  1. sortUsersByName | 0.2830
+  2. findUserById | 0.1614
+  3. createApiUrl | 0.1534
+
+Query: Join the server's base address and a route with a slash.
+Expected: createApiUrl | Rank: 4
+  1. saveViewportToUrl | 0.4471
+  2. addAuthToken | 0.4376
+  3. removeAuthToken | 0.3240
+
+Query: Turn a service root and a relative endpoint into one URL string.
+Expected: createApiUrl | Rank: 1
+  1. createApiUrl | 0.4220
+  2. sortUsersByName | 0.3708
+  3. saveViewportToUrl | 0.3424
+
+Query: Which helper builds a request address from two path components?
+Expected: createApiUrl | Rank: 4
+  1. addAuthToken | 0.3194
+  2. sortUsersByName | 0.3139
+  3. removeAuthToken | 0.2233
+
+Query: Append an endpoint to the API root to form the full address.
+Expected: createApiUrl | Rank: 3
+  1. saveViewportToUrl | 0.3743
+  2. addAuthToken | 0.3673
+  3. createApiUrl | 0.3262
+
+Query: Where does the code put a forward slash between the base and the endpoint?
+Expected: createApiUrl | Rank: 2
+  1. limitZoom | 0.2198
+  2. createApiUrl | 0.2002
+  3. findUserById | 0.1922
+
+Query: Write the map's center coordinates and zoom level into the query string.
+Expected: saveViewportToUrl | Rank: 1
+  1. saveViewportToUrl | 0.4136
+  2. limitZoom | 0.4003
+  3. createApiUrl | 0.3327
+
+Query: Update the address bar to reflect the current view without navigating away.
+Expected: saveViewportToUrl | Rank: 3
+  1. addAuthToken | 0.3341
+  2. createApiUrl | 0.3009
+  3. saveViewportToUrl | 0.2992
+
+Query: Which helper replaces the current history entry with the view settings?
+Expected: saveViewportToUrl | Rank: 1
+  1. saveViewportToUrl | 0.2224
+  2. sortUsersByName | 0.2121
+  3. createApiUrl | 0.1430
+
+Query: Put the current x and y center and scale into browser URL parameters.
+Expected: saveViewportToUrl | Rank: 1
+  1. saveViewportToUrl | 0.1617
+  2. limitZoom | 0.1205
+  3. filterDeletedUsers | 0.0781
+
+Query: Store the visible area settings in the address bar with replaceState.
+Expected: saveViewportToUrl | Rank: 1
+  1. saveViewportToUrl | 0.3042
+  2. addAuthToken | 0.2978
+  3. removeAuthToken | 0.2864
+
+Query: Cap the zoom at its upper bound and raise it if it falls below the lower bound.
+Expected: limitZoom | Rank: 2
+  1. saveViewportToUrl | 0.2790
+  2. limitZoom | 0.1910
+  3. sortUsersByName | 0.1668
+
+Query: Which helper returns the closest allowed value when the zoom is out of range?
+Expected: limitZoom | Rank: 6
+  1. findUserById | 0.2198
+  2. filterDeletedUsers | 0.1936
+  3. saveViewportToUrl | 0.1631
+
+Query: Leave valid zoom levels alone and bring out-of-range ones back to the boundary.
+Expected: limitZoom | Rank: 3
+  1. saveViewportToUrl | 0.3488
+  2. removeAuthToken | 0.2464
+  3. limitZoom | 0.2139
+
+Query: Apply both a floor and a ceiling to the requested magnification.
+Expected: limitZoom | Rank: 2
+  1. saveViewportToUrl | 0.2417
+  2. limitZoom | 0.1899
+  3. removeAuthToken | 0.1807
+
+Query: Where are Math.min and Math.max used to constrain the zoom level?
+Expected: limitZoom | Rank: 1
+  1. limitZoom | 0.3482
+  2. saveViewportToUrl | 0.2491
+  3. findUserById | 0.2336
+
+Query: Return a copy of the user list ordered by each person's name.
+Expected: sortUsersByName | Rank: 1
+  1. sortUsersByName | 0.5249
+  2. findUserById | 0.3286
+  3. filterDeletedUsers | 0.3108
+
+Query: Which helper uses locale-aware comparison to order account names?
+Expected: sortUsersByName | Rank: 2
+  1. createApiUrl | 0.2771
+  2. sortUsersByName | 0.2552
+  3. saveViewportToUrl | 0.2359
+
+Query: Put the people in A-to-Z order without changing the original array.
+Expected: sortUsersByName | Rank: 1
+  1. sortUsersByName | 0.3974
+  2. createApiUrl | 0.3010
+  3. limitZoom | 0.2864
+
+Query: Order records by their name field using the language's string comparison rules.
+Expected: sortUsersByName | Rank: 1
+  1. sortUsersByName | 0.4550
+  2. createApiUrl | 0.3836
+  3. saveViewportToUrl | 0.3405
+
+Query: Where is localeCompare called on the names in the user list?
+Expected: sortUsersByName | Rank: 4
+  1. saveViewportToUrl | 0.2258
+  2. limitZoom | 0.1955
+  3. findUserById | 0.1832
+
+Query: Return only user records whose deletion flag is false.
+Expected: filterDeletedUsers | Rank: 3
+  1. findUserById | 0.3919
+  2. sortUsersByName | 0.3378
+  3. filterDeletedUsers | 0.3168
+
+Query: Which helper ignores accounts flagged as deleted?
+Expected: filterDeletedUsers | Rank: 4
+  1. sortUsersByName | 0.2184
+  2. removeAuthToken | 0.1931
+  3. createApiUrl | 0.1690
+
+Query: Drop soft-deleted entries from the list without deleting any records.
+Expected: filterDeletedUsers | Rank: 3
+  1. sortUsersByName | 0.4084
+  2. saveViewportToUrl | 0.3218
+  3. filterDeletedUsers | 0.2795
+
+Query: Build a list of remaining users by checking each record's deleted field.
+Expected: filterDeletedUsers | Rank: 2
+  1. sortUsersByName | 0.4129
+  2. filterDeletedUsers | 0.3640
+  3. removeAuthToken | 0.3505
+
+Query: Where is the user list screened for records that should no longer appear?
+Expected: filterDeletedUsers | Rank: 3
+  1. sortUsersByName | 0.2523
+  2. findUserById | 0.2267
+  3. filterDeletedUsers | 0.1816
+
+Query: Return the first account whose ID matches the supplied value.
+Expected: findUserById | Rank: 2
+  1. sortUsersByName | 0.3888
+  2. findUserById | 0.2948
+  3. createApiUrl | 0.2874
+
+Query: Search the user array for the record with the requested identifier.
+Expected: findUserById | Rank: 1
+  1. findUserById | 0.4165
+  2. removeAuthToken | 0.3518
+  3. sortUsersByName | 0.2904
+
+Query: Which helper returns undefined if no account has the given ID?
+Expected: findUserById | Rank: 3
+  1. createApiUrl | 0.2343
+  2. sortUsersByName | 0.2240
+  3. findUserById | 0.1005
+
+Query: Fetch one matching user from an in-memory list by comparing IDs.
+Expected: findUserById | Rank: 1
+  1. findUserById | 0.4391
+  2. removeAuthToken | 0.3595
+  3. addAuthToken | 0.3473
+
+Query: Where does the code scan for an exact match on the user's id field?
+Expected: findUserById | Rank: 4
+  1. limitZoom | 0.3117
+  2. createApiUrl | 0.3073
+  3. sortUsersByName | 0.2996
+
+Model   | Query set   | Top-1  | Recall@3 | MRR
+Model 1 | direct      |  75.0% |   100.0% | 0.8750
+Model 1 | paraphrased |  37.5% |    62.5% | 0.5146
+Model 1 | paraphrases_40 |  45.0% |    70.0% | 0.6270
+Model 2 | direct      |  62.5% |   100.0% | 0.8125
+Model 2 | paraphrased |   0.0% |    25.0% | 0.2179
+Model 2 | paraphrases_40 |  32.5% |    72.5% | 0.5510

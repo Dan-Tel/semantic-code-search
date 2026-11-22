@@ -1,5 +1,5 @@
+import argparse
 import csv
-import gc
 import hashlib
 import json
 import random
@@ -11,6 +11,7 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 
+from semantic_code_search.augmentation import QueryAugmentationDataset
 from semantic_code_search.checkpoint import save_checkpoint
 from semantic_code_search.data import load_pairs
 from semantic_code_search.device import get_device
@@ -19,36 +20,55 @@ from semantic_code_search.model import create_model
 from semantic_code_search.tokenization import load_tokenizer
 from semantic_code_search.training import train_one_epoch
 
-from semantic_code_search.augmentation import QueryAugmentationDataset
+from scripts.hard_negative_sampler import HardNegativeBatchSampler
 
 
 ROOT = Path(__file__).resolve().parents[1]
-
-SEED = 42
-EPOCHS = 10
-BATCH_SIZE = 32
-LEARNING_RATE = 0.0001
-TEMPERATURE = 0.05
-QUERY_LENGTH = 64
-CODE_LENGTH = 256
-
-VALIDATION_LIMIT = 500
-TRAIN_LIMITS = [10000]
-
-TRAIN_LIMITS = [30000]
-EPOCHS = 3
-TEMPERATURE = 0.05
-BATCH_SIZE = 32
-
 TOKENIZER_PATH = ROOT / "artifacts/tokenizer.json"
+PARAPHRASES_PATH = ROOT / "artifacts/query_paraphrases.json"
 DATA_DIR = ROOT / "artifacts/experiment_data"
+REPORTS_DIR = ROOT / "reports/experiments"
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Train a code search model from scratch."
+    )
+    parser.add_argument("--train-limits", type=int, nargs="+", default=[30000])
+    parser.add_argument("--validation-limit", type=int, default=500)
+    parser.add_argument("--epochs", type=int, default=3)
+    parser.add_argument("--batch-size", type=int, default=32)
+    parser.add_argument("--learning-rate", type=float, default=0.0001)
+    parser.add_argument("--temperature", type=float, default=0.05)
+    parser.add_argument("--query-length", type=int, default=64)
+    parser.add_argument("--code-length", type=int, default=256)
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--augment", action="store_true")
+    parser.add_argument("--hard-negatives", action="store_true")
+    parser.add_argument("--paraphrases-path", type=Path, default=PARAPHRASES_PATH)
+    args = parser.parse_args()
+
+    if min(args.train_limits) < 2 or args.batch_size < 2:
+        parser.error("Training requires at least 2 pairs and batch size >= 2.")
+    if len(set(args.train_limits)) != len(args.train_limits):
+        parser.error("Provide each training size only once.")
+    if args.validation_limit < 5:
+        parser.error("Recall@5 requires at least 5 validation pairs.")
+    if args.epochs < 1:
+        parser.error("--epochs must be at least 1.")
+    if not (args.learning_rate > 0 and args.temperature > 0):
+        parser.error("Learning rate and temperature must be positive.")
+    if not all(3 <= n <= 256 for n in (args.query_length, args.code_length)):
+        parser.error("Sequence lengths must be between 3 and 256.")
+    if not 0 <= args.seed < 2**32:
+        parser.error("--seed must be between 0 and 2**32 - 1.")
+
+    return args
 
 
 def write_json(path, data):
     path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Сначала записываем временный файл.
-    temporary = path.with_suffix(path.suffix + ".tmp")
+    temporary = path.with_suffix(".json.tmp")
     temporary.write_text(
         json.dumps(data, indent=2, ensure_ascii=False),
         encoding="utf-8",
@@ -56,7 +76,20 @@ def write_json(path, data):
     temporary.replace(path)
 
 
+def write_csv(path, rows):
+    with path.open("w", encoding="utf-8", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def fingerprint(data):
+    text = json.dumps(data, sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
 def load_cached_pairs(split, limit):
+    # Выборка фиксирована. --seed меняет обучение, а не состав validation.
     path = DATA_DIR / f"{split}_{limit}_seed42.json"
 
     if path.exists():
@@ -65,184 +98,137 @@ def load_cached_pairs(split, limit):
     else:
         print(f"Downloading {split}: {limit} pairs...", flush=True)
         pairs = load_pairs(split=split, limit=limit)
-
-        if len(pairs) != limit:
-            raise ValueError(
-                f"Expected {limit} {split} pairs, got {len(pairs)}"
-            )
-
-        write_json(path, pairs)
+        if len(pairs) == limit:
+            write_json(path, pairs)
 
     if len(pairs) != limit:
-        raise ValueError(f"Unexpected dataset size in {path}")
+        raise ValueError(f"Expected {limit} {split} pairs, got {len(pairs)}.")
 
     return pairs
 
 
-def set_seed():
-    random.seed(SEED)
-    np.random.seed(SEED)
-    torch.manual_seed(SEED)
-
+def set_seed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
     if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(SEED)
+        torch.cuda.manual_seed_all(seed)
 
 
 def synchronize(device):
-    if device.type == "mps":
-        torch.mps.synchronize()
-    elif device.type == "cuda":
+    if device.type == "cuda":
         torch.cuda.synchronize()
+    elif device.type == "mps":
+        torch.mps.synchronize()
 
 
-def release_memory(device):
-    gc.collect()
-
-    if device.type == "mps":
-        torch.mps.empty_cache()
-    elif device.type == "cuda":
-        torch.cuda.empty_cache()
-
-
-def fingerprint(data):
-    text = json.dumps(
-        data,
-        sort_keys=True,
-        ensure_ascii=False,
-    )
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()
-
-
-def run_experiment(
-    train_pairs,
-    validation_pairs,
-    tokenizer,
-    initial_weights,
-    device,
-    run_dir,
-    common_config,
-):
-    set_seed()
-
-    train_limit = len(train_pairs)
-    experiment_dir = run_dir / f"train_{train_limit}"
-    experiment_dir.mkdir(parents=True, exist_ok=True)
-
-    checkpoint_path = experiment_dir / "best.pt"
-
-    generator = torch.Generator().manual_seed(SEED)
-    
-    train_dataset = QueryAugmentationDataset(
-        pairs=train_pairs,
-        paraphrases_path=ROOT / "artifacts/query_paraphrases.json",
-        seed=SEED,
-    )
-
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=BATCH_SIZE,
-        shuffle=True,
-        generator=generator,
-        num_workers=0,
-    )
-
-    validation_loader = DataLoader(
-        validation_pairs,
-        batch_size=BATCH_SIZE,
-        shuffle=False,
-        num_workers=0,
-    )
-
-    model = create_model(tokenizer)
-
-    # Одинаковые начальные веса для обоих экспериментов.
-    model.load_state_dict(initial_weights)
-    model = model.to(device)
-
+def run_experiment(args, train_pairs, validation_loader, tokenizer,
+                   device, experiment_dir, common_config):
+    # Сбрасываем seed перед созданием каждой модели:
+    # эксперименты разного размера стартуют с одинаковых весов.
+    set_seed(args.seed)
+    model = create_model(tokenizer).to(device)
     optimizer = torch.optim.AdamW(
         model.parameters(),
-        lr=LEARNING_RATE,
+        lr=args.learning_rate,
         weight_decay=0.01,
     )
 
+    train_dataset = train_pairs
+    augmented_examples = 0
+
+    if args.augment:
+        train_dataset = QueryAugmentationDataset(
+            pairs=train_pairs,
+            paraphrases_path=args.paraphrases_path,
+            seed=args.seed,
+        )
+        augmented_examples = len(train_dataset.variants)
+
+    if args.hard_negatives:
+        train_loader = DataLoader(
+            train_dataset,
+            batch_sampler=HardNegativeBatchSampler(
+                train_pairs, batch_size=args.batch_size, seed=args.seed
+            ),
+            num_workers=0,
+        )
+    else:
+        train_loader = DataLoader(
+            train_dataset,
+            batch_size=args.batch_size,
+            shuffle=True,
+            generator=torch.Generator().manual_seed(args.seed),
+            num_workers=0,
+        )
+
+    checkpoint_path = experiment_dir / "best.pt"
     config = {
         **common_config,
-        "train_pairs": train_limit,
+        "train_pairs": len(train_pairs),
         "train_sha256": fingerprint(train_pairs),
         "batches_per_epoch": len(train_loader),
-        "augmentation": "query_paraphrases",
-        "augmented_examples": len(train_dataset.variants),
-        "paraphrases_sha256": hashlib.sha256(
-            (ROOT / "artifacts/query_paraphrases.json").read_bytes()
-        ).hexdigest(),
+        "augmentation": "query_paraphrases" if args.augment else "none",
+        "augmented_examples": augmented_examples,
+        "paraphrases_sha256": (
+            hashlib.sha256(args.paraphrases_path.read_bytes()).hexdigest()
+            if args.augment else None
+        ),
+        "hard_negatives": args.hard_negatives
     }
     write_json(experiment_dir / "config.json", config)
 
     print(
-        f"\n=== Training pairs: {train_limit} | "
-        f"Batches: {len(train_loader)} ===",
+        f"\nTraining pairs: {len(train_pairs)} | "
+        f"Batches: {len(train_loader)} | "
+        f"Augmented examples: {augmented_examples}",
         flush=True,
     )
 
     history = []
-    best_mrr = float("-inf")
     best_row = None
 
-    for epoch in range(1, EPOCHS + 1):
+    for epoch in range(1, args.epochs + 1):
         synchronize(device)
-        started_at = perf_counter()
+        started = perf_counter()
 
-        train_loss = train_one_epoch(
+        loss = train_one_epoch(
             model=model,
             data_loader=train_loader,
             tokenizer=tokenizer,
             optimizer=optimizer,
             device=device,
-            query_length=QUERY_LENGTH,
-            code_length=CODE_LENGTH,
-            temperature=TEMPERATURE,
+            query_length=args.query_length,
+            code_length=args.code_length,
+            temperature=args.temperature,
         )
 
         synchronize(device)
-        train_seconds = perf_counter() - started_at
-        validation_started = perf_counter()
+        train_seconds = perf_counter() - started
+        started = perf_counter()
 
         metrics = evaluate_retrieval(
             model=model,
             data_loader=validation_loader,
             tokenizer=tokenizer,
             device=device,
-            query_length=QUERY_LENGTH,
-            code_length=CODE_LENGTH,
+            query_length=args.query_length,
+            code_length=args.code_length,
         )
 
         synchronize(device)
-        validation_seconds = perf_counter() - validation_started
-
         row = {
             "epoch": epoch,
-            "train_loss": train_loss,
+            "train_loss": loss,
             **metrics,
             "train_seconds": train_seconds,
-            "validation_seconds": validation_seconds,
+            "validation_seconds": perf_counter() - started,
             "optimizer_steps": epoch * len(train_loader),
         }
         history.append(row)
 
-        print(
-            f"Epoch {epoch}/{EPOCHS} | "
-            f"loss: {train_loss:.4f} | "
-            f"Top-1: {metrics['top1_accuracy']:.2%} | "
-            f"Recall@5: {metrics['recall_at_5']:.2%} | "
-            f"MRR: {metrics['mrr']:.4f} | "
-            f"train: {train_seconds / 60:.1f} min",
-            flush=True,
-        )
-
-        if metrics["mrr"] > best_mrr:
-            best_mrr = metrics["mrr"]
-            best_row = dict(row)
-
+        if best_row is None or row["mrr"] > best_row["mrr"]:
+            best_row = row
             save_checkpoint(
                 checkpoint_path=checkpoint_path,
                 model=model,
@@ -250,124 +236,90 @@ def run_experiment(
                 epoch=epoch,
                 metrics=metrics,
             )
-            print("Best checkpoint saved:", checkpoint_path, flush=True)
 
-        # Сохраняем результаты после каждой эпохи.
         write_json(experiment_dir / "history.json", history)
+        write_csv(experiment_dir / "history.csv", history)
 
-        with (experiment_dir / "history.csv").open(
-            "w", newline="", encoding="utf-8"
-        ) as file:
-            writer = csv.DictWriter(file, fieldnames=list(row))
-            writer.writeheader()
-            writer.writerows(history)
+        print(
+            f"Epoch {epoch}/{args.epochs} | loss: {loss:.4f} | "
+            f"Top-1: {row['top1_accuracy']:.2%} | "
+            f"Recall@5: {row['recall_at_5']:.2%} | "
+            f"MRR: {row['mrr']:.4f}",
+            flush=True,
+        )
 
     summary = {
-        "train_pairs": train_limit,
+        "train_pairs": len(train_pairs),
         "best_epoch": best_row["epoch"],
         "top1_accuracy": best_row["top1_accuracy"],
         "recall_at_5": best_row["recall_at_5"],
         "mrr": best_row["mrr"],
-        "total_train_minutes": sum(
-            row["train_seconds"] for row in history
-        ) / 60,
-        "total_optimizer_steps": EPOCHS * len(train_loader),
-        "checkpoint": str(checkpoint_path),
+        "total_train_minutes": sum(r["train_seconds"] for r in history) / 60,
+        "total_optimizer_steps": history[-1]["optimizer_steps"],
+        "checkpoint": str(checkpoint_path.relative_to(ROOT)),
     }
-
     write_json(experiment_dir / "summary.json", summary)
-
-    del optimizer, model, train_loader, validation_loader
-    release_memory(device)
-
     return summary
 
 
 def main():
+    args = parse_args()
     device = get_device()
     print("Device:", device, flush=True)
 
-    # Загружаем 10 000 один раз.
-    # Первый эксперимент использует первые 5 000 из этой же выборки.
-    all_train_pairs = load_cached_pairs(
-        "train", max(TRAIN_LIMITS)
-    )
-    validation_pairs = load_cached_pairs(
-        "validation", VALIDATION_LIMIT
-    )
-
     tokenizer = load_tokenizer(TOKENIZER_PATH)
-
-    set_seed()
-    initial_model = create_model(tokenizer)
-
-    initial_weights = {
-        name: tensor.detach().cpu().clone()
-        for name, tensor in initial_model.state_dict().items()
-    }
-    del initial_model
-
-    timestamp = datetime.now(timezone.utc).strftime(
-        "%Y%m%d_%H%M%S_%f"
+    all_train_pairs = load_cached_pairs("train", max(args.train_limits))
+    validation_pairs = load_cached_pairs("validation", args.validation_limit)
+    validation_loader = DataLoader(
+        validation_pairs,
+        batch_size=args.batch_size,
+        shuffle=False,
+        num_workers=0,
     )
-    run_dir = ROOT / "reports/experiments" / timestamp
-    run_dir.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S_%f")
+    run_dir = REPORTS_DIR / timestamp
+    run_dir.mkdir(parents=True, exist_ok=False)
 
     common_config = {
-        "seed": SEED,
-        "epochs": EPOCHS,
-        "batch_size": BATCH_SIZE,
-        "learning_rate": LEARNING_RATE,
+        "seed": args.seed,
+        "data_seed": 42,
+        "epochs": args.epochs,
+        "batch_size": args.batch_size,
+        "learning_rate": args.learning_rate,
         "weight_decay": 0.01,
-        "temperature": TEMPERATURE,
-        "query_length": QUERY_LENGTH,
-        "code_length": CODE_LENGTH,
+        "temperature": args.temperature,
+        "query_length": args.query_length,
+        "code_length": args.code_length,
         "validation_pairs": len(validation_pairs),
         "validation_sha256": fingerprint(validation_pairs),
-        "tokenizer_sha256": hashlib.sha256(
-            TOKENIZER_PATH.read_bytes()
-        ).hexdigest(),
+        "tokenizer_sha256": hashlib.sha256(TOKENIZER_PATH.read_bytes()).hexdigest(),
         "device": str(device),
         "torch_version": str(torch.__version__),
     }
 
     summaries = []
-
-    for train_limit in TRAIN_LIMITS:
+    for limit in args.train_limits:
         summary = run_experiment(
-            train_pairs=all_train_pairs[:train_limit],
-            validation_pairs=validation_pairs,
+            args=args,
+            train_pairs=all_train_pairs[:limit],
+            validation_loader=validation_loader,
             tokenizer=tokenizer,
-            initial_weights=initial_weights,
             device=device,
-            run_dir=run_dir,
+            experiment_dir=run_dir / f"train_{limit}",
             common_config=common_config,
         )
-
         summaries.append(summary)
         write_json(run_dir / "summary.json", summaries)
-
-        with (run_dir / "summary.csv").open(
-            "w", newline="", encoding="utf-8"
-        ) as file:
-            writer = csv.DictWriter(
-                file, fieldnames=list(summary)
-            )
-            writer.writeheader()
-            writer.writerows(summaries)
+        write_csv(run_dir / "summary.csv", summaries)
 
     print("\nPairs | Best epoch | Top-1 | Recall@5 | MRR | Train min")
-
     for row in summaries:
         print(
-            f"{row['train_pairs']:5} | "
-            f"{row['best_epoch']:10} | "
-            f"{row['top1_accuracy']:.2%} | "
-            f"{row['recall_at_5']:.2%} | "
-            f"{row['mrr']:.4f} | "
-            f"{row['total_train_minutes']:.1f}"
+            f"{row['train_pairs']:5} | {row['best_epoch']:10} | "
+            f"{row['top1_accuracy']:.2%} | {row['recall_at_5']:.2%} | "
+            f"{row['mrr']:.4f} | {row['total_train_minutes']:.1f}"
         )
-
     print("\nResults:", run_dir)
 
 

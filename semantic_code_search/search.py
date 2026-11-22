@@ -37,8 +37,10 @@ class NeuralCodeSearch:
 
         self.code_vectors = torch.cat(batches, dim=0)
 
+    @torch.no_grad()
     def retrieve(self, query, top_k=3):
-        if not query.strip() or top_k <= 0:
+        query = query.strip()
+        if not query or top_k <= 0:
             return []
 
         self.model.eval()
@@ -48,34 +50,17 @@ class NeuralCodeSearch:
             max_length=64,
             device=self.device,
         )
-        with torch.no_grad():
-            query_vector = self.model(inputs["input_ids"], inputs["attention_mask"])
-            
-            print(
-                "Query norm:",
-                query_vector.norm(dim=-1).detach().cpu().tolist(),
-            )
 
-            print(
-                "Code norms:",
-                self.code_vectors.norm(dim=-1)[:5].detach().cpu().tolist(),
-            )
-
-            scores = (query_vector @ self.code_vectors.T)[0]
-
-            print(
-                "Scores:",
-                f"min={scores.min().item():.4f}",
-                f"mean={scores.mean().item():.4f}",
-                f"max={scores.max().item():.4f}",
-            )
-            
-            scores = (query_vector @ self.code_vectors.T)[0]
-
+        query_vector = self.model(
+            inputs["input_ids"],
+            inputs["attention_mask"],
+        )
+        scores = (query_vector @ self.code_vectors.T)[0]
         indices = scores.argsort(descending=True)[:top_k].tolist()
+
         return [
-            {**self.functions[index], "score": scores[index].item()}
-            for index in indices
+            {**self.functions[i], "score": scores[i].item()}
+            for i in indices
         ]
 
 

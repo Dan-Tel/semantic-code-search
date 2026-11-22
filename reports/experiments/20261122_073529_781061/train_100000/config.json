@@ -1,0 +1,22 @@
+{
+  "seed": 42,
+  "data_seed": 42,
+  "epochs": 3,
+  "batch_size": 32,
+  "learning_rate": 0.0001,
+  "weight_decay": 0.01,
+  "temperature": 0.05,
+  "query_length": 64,
+  "code_length": 256,
+  "validation_pairs": 1000,
+  "validation_sha256": "833839ebdb4a90e0015cf42b32af3bc80a0eea131d4e68a687667f780500990a",
+  "tokenizer_sha256": "eb5c7262087f0c6d48202e9210a9a7e05788fb34deabd1b2c02008c251108359",
+  "device": "cuda",
+  "torch_version": "2.11.0+cu128",
+  "train_pairs": 100000,
+  "train_sha256": "06e0bd4e841bc98cb62ddcfd72a8c29b945265d1afe7b47b5f2dc1ff4d58a009",
+  "batches_per_epoch": 3125,
+  "augmentation": "none",
+  "augmented_examples": 0,
+  "paraphrases_sha256": null
+}
