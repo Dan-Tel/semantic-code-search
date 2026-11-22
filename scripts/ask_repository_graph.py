@@ -75,7 +75,6 @@ def create_graph(search, llm):
         }
 
     def answer_node(state):
-        # Отвечаем на исходный вопрос пользователя.
         answer = generate_answer(
             llm,
             state["query"],

@@ -50,6 +50,26 @@ class NeuralCodeSearch:
         )
         with torch.no_grad():
             query_vector = self.model(inputs["input_ids"], inputs["attention_mask"])
+            
+            print(
+                "Query norm:",
+                query_vector.norm(dim=-1).detach().cpu().tolist(),
+            )
+
+            print(
+                "Code norms:",
+                self.code_vectors.norm(dim=-1)[:5].detach().cpu().tolist(),
+            )
+
+            scores = (query_vector @ self.code_vectors.T)[0]
+
+            print(
+                "Scores:",
+                f"min={scores.min().item():.4f}",
+                f"mean={scores.mean().item():.4f}",
+                f"max={scores.max().item():.4f}",
+            )
+            
             scores = (query_vector @ self.code_vectors.T)[0]
 
         indices = scores.argsort(descending=True)[:top_k].tolist()

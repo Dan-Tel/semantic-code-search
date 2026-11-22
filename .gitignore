@@ -29,3 +29,7 @@ checkpoints/
 # Operating systems
 .DS_Store
 Thumbs.db
+
+/artifacts/experiment_data/
+/training_queries_batch*.txt
+/reports/rag_queries.jsonl

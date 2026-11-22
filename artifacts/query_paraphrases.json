@@ -1,0 +1,74 @@
+[
+  {
+    "index": 9012,
+    "expected_query": "Append argument(s) to the list",
+    "paraphrases": [
+      "Add the supplied arguments to the end of the list",
+      "Extend the list with the supplied array elements or individual arguments"
+    ]
+  },
+  {
+    "index": 24132,
+    "expected_query": "Return the first value that is defined. Like MooTools' $.pick.",
+    "paraphrases": [
+      "Return the first argument that is neither null nor undefined",
+      "Skip null and undefined arguments and return the first remaining value"
+    ]
+  },
+  {
+    "index": 24299,
+    "expected_query": "Calculate the RIPE-MD160 of an array of little-endian words, and a bit length.",
+    "paraphrases": [
+      "Compute a RIPEMD-160 hash from little-endian words and the input length in bits",
+      "Hash an array of little-endian words using RIPEMD-160 and a specified bit length"
+    ]
+  },
+  {
+    "index": 4572,
+    "expected_query": "@private Adjusts scopeOrder to have the project Scope if necessary. Returns a new array if changes are needed, otherwise returns the original array. @param {Array.<string>} scopeOrder initial scopeOrder @param {boolean} includeProject Whether the project Scope should be included",
+    "paraphrases": [
+      "Include or exclude the project scope according to a flag, returning the original array if no change is needed",
+      "Update the scope ordering to match whether project scope is required, creating a new array only when necessary"
+    ]
+  },
+  {
+    "index": 20952,
+    "expected_query": "Creates possible selection ranges for HTML tag @param {String} source Original HTML source for tokens @param {Array} tokens List of HTML tokens",
+    "paraphrases": [
+      "Find selectable spans for tag names and attributes using HTML source and its tokens",
+      "Build text selection ranges for the parts of an HTML tag from its token positions"
+    ]
+  },
+  {
+    "index": 3648,
+    "expected_query": "Handles the auto update event, which is triggered when user clicks GetItNow in UpdateNotification dialog @param {object} updateParams - json object containing update information { installerName - name of the installer downloadURL - download URL latestBuildNumber - build number checksum - checksum }",
+    "paraphrases": [
+      "Start the automatic update flow when the user accepts the update notification",
+      "Handle the Get It Now button by initializing the update with the supplied installer metadata"
+    ]
+  },
+  {
+    "index": 819,
+    "expected_query": "Show tip manually by dispatchAction({ type: 'showTip', x: 10, y: 10 }); Or dispatchAction({ type: 'showTip', seriesIndex: 0, dataIndex or dataIndexInside or name }); TODO Batch",
+    "paraphrases": [
+      "Show a chart tooltip programmatically at a screen position or for a specific series item",
+      "Handle a manual tooltip action using coordinates or a series and data item reference"
+    ]
+  },
+  {
+    "index": 8024,
+    "expected_query": "Handles day focus from the embedded day Picker. This function assumes there is a \"datesRow\" aggregation. So callers must take care. @return {void}",
+    "paraphrases": [
+      "Respond to a day picker focus event when the calendar has a dates row",
+      "Handle date focus changes emitted by the embedded day picker, assuming a dates row exists"
+    ]
+  },
+  {
+    "index": 7314,
+    "expected_query": "Throws a SyntaxError with the given <code>sMessage</code> as <code>message</code>, its <code>at</code> property set to <code>iAt</code> and its <code>text</code> property to <code>sInput</code>. In addition, logs a corresponding error message to the console with <code>sInput</code> as details. @param {string} sMessage - the error message @param {string} sInput - the input string @param {int} [iAt] - the index in the input string where the error occurred; the index starts counting at 1 to be consistent with positions provided in tokenizer error messages.",
+    "paraphrases": [
+      "Log a parser error and throw a SyntaxError carrying the input text and error position",
+      "Report malformed input by attaching the source text and optional one-based position to a SyntaxError, then logging and throwing it"
+    ]
+  }
+]

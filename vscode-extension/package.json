@@ -1,0 +1,66 @@
+{
+  "name": "semantic-code-search-demo",
+  "displayName": "Semantic Code Search",
+  "description": "Search repository functions and ask local Qwen about code.",
+  "version": "0.2.0",
+  "publisher": "local-demo",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./extension.js",
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false
+    },
+    "virtualWorkspaces": false
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "semanticCodeSearch.search",
+        "title": "Search Code with AI"
+      },
+      {
+        "command": "semanticCodeSearch.ask",
+        "title": "Ask Code with AI"
+      }
+    ],
+    "configuration": {
+      "title": "Semantic Code Search",
+      "properties": {
+        "semanticCodeSearch.backendPath": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "description": "Absolute path to the Python project root. Defaults to the parent of the extension folder."
+        },
+        "semanticCodeSearch.pythonPath": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "description": "Absolute path to the Python executable inside the project .venv."
+        },
+        "semanticCodeSearch.topK": {
+          "type": "integer",
+          "default": 5,
+          "minimum": 1,
+          "maximum": 20,
+          "description": "Number of functions to retrieve."
+        },
+        "semanticCodeSearch.ollamaModel": {
+          "type": "string",
+          "default": "qwen3:8b",
+          "description": "Local Ollama model used by Ask Code with AI."
+        },
+        "semanticCodeSearch.rewriteQuery": {
+          "type": "boolean",
+          "default": true,
+          "description": "Rewrite questions with Qwen before searching."
+        }
+      }
+    }
+  }
+}
